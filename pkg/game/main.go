@@ -91,7 +91,10 @@ func Play(n string) {
 				winner = true
 				if Dealer.Player.Scores()[player.MAX] >= PlayerOne.Scores()[player.MAX] {
 					scores[Dealer.Player] += 1
-					fmt.Printf("Dealer Wins!\n")
+					fmt.Printf("Dealer has %d, %s has %d.  Dealer Wins!\n",
+						Dealer.Player.Scores()[player.MAX],
+						PlayerOne.Name,
+						PlayerOne.Scores()[player.MAX])
 				} else {
 					scores[PlayerOne] += 1
 					fmt.Printf("%s Wins!\n", PlayerOne.Name)
@@ -118,6 +121,7 @@ func Play(n string) {
 				choiceMade = true
 				Dealer.NewGame()
 				PlayerOne.NewGame()
+				ClearScreen()
 			case "N":
 				choiceMade = true
 				quit = true

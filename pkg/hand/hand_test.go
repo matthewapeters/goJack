@@ -58,14 +58,14 @@ func itMayHaveTheseBelowOrEqualTo(ctx context.Context, expectedValueStr string, 
 		}
 	}
 	hand := ctx.Value("Hand").(*hand.Hand)
-	foundValues := hand.Values().Values
+	foundValues := hand.TheScore
 	if len(foundValues) != len(expectedValues) {
 		return fmt.Errorf("Expected %d possible values but got %d values (%+v)", len(expectedValues), len(foundValues), foundValues)
 	}
 	sort.IntSlice(expectedValues).Sort()
 	values := []int{}
 	for _, fv := range foundValues {
-		values = append(values, fv.Value)
+		values = append(values, fv)
 	}
 	sort.IntSlice(values).Sort()
 	for i := range expectedValues {

@@ -30,18 +30,15 @@ func (deck *DeckOfCards) Shuffle() {
 	var pickCard int
 	src := rand.NewSource(time.Now().UTC().Unix())
 	r := rand.New(src)
-	oldList := deck.Cards
-	deck.Cards = &hand.Hand{Cards: oldList.Cards, FirstCard: nil}
+	hand := hand.NewHand()
 	for remainingCards := 52; remainingCards > 0; remainingCards-- {
 		if remainingCards > 1 {
 			pickCard = r.Intn(remainingCards) + 1
 		} else {
 			pickCard = 1
 		}
-		//fmt.Printf("draw card %d of %d\n", pickCard, remainingCards)
-		card := oldList.GiveCard(pickCard)
-		//fmt.Printf("card %d is %s\n\n", pickCard, card)
-		deck.Cards.Takes(card)
+		hand.Takes(deck.Cards.GiveCard(pickCard))
 	}
+	deck.Cards = hand
 
 }

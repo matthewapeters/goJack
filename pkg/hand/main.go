@@ -2,9 +2,7 @@ package hand
 
 import (
 	"fmt"
-	"sort"
 	"strings"
-	"sync"
 
 	"github.com/matthewapeters/gojack/pkg/card"
 )
@@ -26,23 +24,35 @@ type PossibleValues struct {
 	Values []*PossibleValue
 }
 type Hand struct {
-	Cards     map[card.Suit]map[card.FaceValue]*card.Card
+	//Cards     map[card.Suit]map[card.FaceValue]*card.Card
 	FirstCard *card.Card
-	mtx       sync.Mutex
+	TheScore  []int
+	TheCards  []*card.Card
 }
 
+func NewHand() (h *Hand) {
+	h = &Hand{
+		FirstCard: nil,
+		TheCards:  []*card.Card{},
+		TheScore:  []int{},
+	}
+	return
+}
 func (h *Hand) Takes(c *card.Card) {
-	h.mtx.Lock()
-	defer h.mtx.Unlock()
-	h.Cards[c.Suit][c.FaceValue] = c
 	if h.FirstCard == nil {
-		//fmt.Printf("Hand First Card is %s\n", c)
 		h.FirstCard = c
 	} else {
 		h.FirstCard.AddNextCard(c)
 	}
+	h.TheCards = append(h.TheCards, c)
+	scores := []int{}
+	for _, v := range h.values().Values {
+		scores = append(scores, v.Value)
+	}
+	h.TheScore = scores
+
 }
-func evaluatePossibleValues(c *card.Card, p *PossibleValue, values *PossibleValues) {
+func (posVals *PossibleValues) evaluatePossibleValues(c *card.Card, p *PossibleValue) {
 	if c == nil {
 		fmt.Printf("evaluatePossibleValues received nil for *card.Card\n")
 		return
@@ -51,28 +61,28 @@ func evaluatePossibleValues(c *card.Card, p *PossibleValue, values *PossibleValu
 	// If the addition of this card exceeds MaxValue (21), remove the possible value from values and return
 	if p.Value+card.Values[c.FaceValue][0] > MaxValue {
 		//fmt.Printf("next card %s exceeds %d\n", c, MaxValue)
-		l := len(values.Values)
-		for i, v := range values.Values {
+		l := len(posVals.Values)
+		for i, v := range posVals.Values {
 			if v == p {
 				// Nil out the entry to allow the GC to collect the underylying array
-				values.Values[i] = nil
+				posVals.Values[i] = nil
 				// There are several considerations for removing an element from an array
 				if i == 0 {
 					if l > 1 {
 						// This is the first possible value, there are others
-						values.Values = values.Values[1:]
+						posVals.Values = posVals.Values[1:]
 						return
 					}
 					// This is the only possible value
-					values.Values = []*PossibleValue{}
+					posVals.Values = []*PossibleValue{}
 					return
 				}
 				if i == l-1 {
 					//This is the last possible value, and there are others
-					values.Values = values.Values[:i]
+					posVals.Values = posVals.Values[:i]
 					return
 				}
-				values.Values = append(values.Values[:i], values.Values[i+1:]...)
+				posVals.Values = append(posVals.Values[:i], posVals.Values[i+1:]...)
 				return
 			}
 		}
@@ -95,45 +105,29 @@ func evaluatePossibleValues(c *card.Card, p *PossibleValue, values *PossibleValu
 			}
 			newPossibleValue := &PossibleValue{Cards: newCards, Value: startValue + card.Values[c.FaceValue][i]}
 			branches = append(branches, newPossibleValue)
-			values.Values = append(values.Values, newPossibleValue)
+			posVals.Values = append(posVals.Values, newPossibleValue)
 		}
 	}
 	if nextCard != nil {
 		for _, pv := range branches {
-			evaluatePossibleValues(nextCard, pv, values)
+			posVals.evaluatePossibleValues(nextCard, pv)
 		}
 	} else {
 		//println("no next card")
 	}
 }
-func (h *Hand) Values() (values *PossibleValues) {
-	h.mtx.Lock()
-	defer h.mtx.Unlock()
-
+func (h *Hand) values() (values *PossibleValues) {
 	p := &PossibleValue{}
 	values = &PossibleValues{Values: []*PossibleValue{p}}
 	if h.FirstCard == nil {
 		return
 	}
-	evaluatePossibleValues(h.FirstCard, p, values)
-	return
-}
-
-func NewHand() (h *Hand) {
-	h = &Hand{
-		Cards: map[card.Suit]map[card.FaceValue]*card.Card{
-			card.Hearts: {}, card.Diamonds: {},
-			card.Clubs: {}, card.Spades: {}},
-		FirstCard: nil,
-		mtx:       sync.Mutex{}}
+	values.evaluatePossibleValues(h.FirstCard, p)
 	return
 }
 
 // Get the ith card from the hand as dealt, and re-link the remaining cards
 func (h *Hand) GiveCard(i int) (c *card.Card) {
-	//fmt.Printf("GiveCard(%d)\n", i)
-	h.mtx.Lock()
-	defer h.mtx.Unlock()
 	// Edge condition: asking for the first card
 	if i == 1 {
 		c = h.FirstCard
@@ -167,35 +161,26 @@ func (h *Hand) GiveCard(i int) (c *card.Card) {
 		c.ValuePath[k] = nil
 	}
 	// Remove the card from the sorted Cards
-	delete(h.Cards[c.Suit], c.FaceValue)
+	//delete(h.Cards[c.Suit], c.FaceValue)
 	//fmt.Printf("counted over %d cards %s, and gave %s\n", len(cardList), cardList, c)
 	//fmt.Printf("The new next card after %s is %+v\n", cardList[len(cardList)-1], cardList[len(cardList)-1].ValuePath)
 	return
 }
 
 func (h *Hand) String() (s string) {
-	h.mtx.Lock()
-	defer h.mtx.Unlock()
-
 	s = "Hand:\n"
 	s0 := ""
 	s1 := ""
 	s2 := ""
 	s3 := ""
 	s4 := ""
-	for _, st := range card.Suits {
-		suit := []card.FaceValue{}
-		for f := range h.Cards[st] {
-			suit = append(suit, f)
-		}
-		sort.Sort(card.FaceValues(suit))
-		for _, k := range suit {
-			s0 += fmt.Sprintf("\t┌%s────┒", strings.Repeat("─", 3))
-			s1 += fmt.Sprintf("\t│%s    ┃", h.Cards[st][k])
-			s2 += fmt.Sprintf("\t│  %s  ┃", strings.Repeat(" ", 3))
-			s3 += fmt.Sprintf("\t│    %s┃", h.Cards[st][k])
-			s4 += fmt.Sprintf("\t┕━━━━%s┛", strings.Repeat("━", 3))
-		}
+
+	for _, k := range h.TheCards {
+		s0 += fmt.Sprintf("\t┌%s────┒", strings.Repeat("─", 3))
+		s1 += fmt.Sprintf("\t│%s    ┃", k)
+		s2 += fmt.Sprintf("\t│  %s  ┃", strings.Repeat(" ", 3))
+		s3 += fmt.Sprintf("\t│    %s┃", k)
+		s4 += fmt.Sprintf("\t┕━━━━%s┛", strings.Repeat("━", 3))
 	}
 	s0 += "\n"
 	s1 += "\n"

@@ -28,8 +28,7 @@ func NewPlayer(name string) *Player {
 }
 
 func (d *Player) GoesBust() bool {
-	possibleValues := d.Hand.Values().Values
-	if len(possibleValues) == 0 {
+	if len(d.Hand.TheScore) == 0 {
 		return true
 	}
 	return false
@@ -46,12 +45,12 @@ func (p *Player) NewGame() {
 
 func (p *Player) Scores() (scores map[string]int) {
 	scores = map[string]int{MIN: 22, MAX: 0}
-	for _, v := range p.Hand.Values().Values {
-		if v.Value < scores[MIN] {
-			scores[MIN] = v.Value
+	for _, v := range p.Hand.TheScore {
+		if v < scores[MIN] {
+			scores[MIN] = v
 		}
-		if v.Value > scores[MAX] {
-			scores[MAX] = v.Value
+		if v > scores[MAX] {
+			scores[MAX] = v
 		}
 	}
 	return
