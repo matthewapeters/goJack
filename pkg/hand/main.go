@@ -13,8 +13,8 @@ const (
 
 type Cards []*card.Card
 
-func (crds *Cards) Append(v *card.Card) {
-	*crds = append(*crds, v)
+func (crds *Cards) Append(v ...*card.Card) {
+	*crds = append(*crds, v...)
 }
 
 type PossibleValue struct {

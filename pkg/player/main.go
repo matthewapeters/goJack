@@ -14,8 +14,9 @@ const (
 )
 
 type Player struct {
-	Name string
-	Hand *hand.Hand
+	Name  string
+	Hand  *hand.Hand
+	Purse int
 	Choice
 }
 
@@ -23,6 +24,7 @@ func NewPlayer(name string) *Player {
 	return &Player{
 		Name:   name,
 		Hand:   hand.NewHand(),
+		Purse:  1000,
 		Choice: HIT,
 	}
 }
@@ -44,7 +46,7 @@ func (p *Player) NewGame() {
 }
 
 func (p *Player) Scores() (scores map[string]int) {
-	scores = map[string]int{MIN: 22, MAX: 0}
+	scores = map[string]int{MIN: 999, MAX: 0}
 	for _, v := range p.Hand.TheScore {
 		if v < scores[MIN] {
 			scores[MIN] = v
@@ -73,3 +75,5 @@ func (p *Player) MakeChoice(input string) bool {
 	}
 	return false
 }
+
+type Players []*Player

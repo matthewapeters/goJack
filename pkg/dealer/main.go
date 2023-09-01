@@ -22,16 +22,24 @@ func (d *Dealer) DealsACard(p *player.Player) {
 	p.Hand.Takes(d.Deck.Cards.GiveCard(1))
 }
 
-func (d *Dealer) Shuffles() {
-	d.Deck.Shuffle()
-}
-
 func (d *Dealer) NewGame() {
-	d.Deck = deck.NewDeck()
-	d.Player.Hand = hand.NewHand()
+	// New Game returns played cards to deck and reshuffles the deck every third game
+	d.GatherPlayedCards(*d.Player.Hand.TheCards)
+	d.Deck.NewGame()
+	d.Player.NewGame()
 }
 
 func (d *Dealer) RevealFirstCard() {
 	//Reveal the dealer's first card
 	d.Player.Hand.RevealFirstCard()
+}
+
+func (d *Dealer) GoesBust() (busted bool) {
+	busted = ((*d.Deck.Cards.TheCards)[0].FaceDown && d.Player.Scores()[player.MIN] >= 21) ||
+		d.Player.GoesBust()
+	return
+}
+
+func (d *Dealer) GatherPlayedCards(crds hand.Cards) {
+	d.Deck.PlayedCards(crds)
 }

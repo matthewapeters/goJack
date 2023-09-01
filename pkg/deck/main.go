@@ -10,7 +10,9 @@ import (
 )
 
 type DeckOfCards struct {
-	Cards *hand.Hand
+	Cards         *hand.Hand
+	GameCount     int
+	ReturnedCards hand.Cards
 }
 
 var (
@@ -18,7 +20,7 @@ var (
 )
 
 func NewDeck() (deck *DeckOfCards) {
-	deck = &DeckOfCards{Cards: hand.NewHand()}
+	deck = &DeckOfCards{Cards: hand.NewHand(), ReturnedCards: hand.Cards{}}
 	for _, s := range card.Suits {
 		for _, fv := range card.Cards {
 			deck.Cards.Takes(card.NewCard(s, fv))
@@ -45,6 +47,26 @@ func (deck *DeckOfCards) Shuffle() {
 		//deal card from random pick of old hand into the new hand
 		deck.Cards.Takes(oldHand.GiveCard(pickCard))
 	}
+}
+
+func (deck *DeckOfCards) NewGame() {
+	deck.GameCount += 1
+	if deck.GameCount > 3 {
+		deck.gatherAllCards()
+		deck.Shuffle()
+		deck.GameCount = 1
+	}
+}
+
+func (deck *DeckOfCards) gatherAllCards() {
+	//fmt.Printf("PRE: Number of Cards in Deck: %d  Number of Cards Returned: %d\n", len(*deck.Cards.TheCards), len(deck.ReturnedCards))
+	deck.Cards.TheCards.Append(deck.ReturnedCards...)
+	deck.ReturnedCards = hand.Cards{}
+	//fmt.Printf("POST: Number of Cards in Deck: %d  Number of Cards Returned: %d\n", len(*deck.Cards.TheCards), len(deck.ReturnedCards))
+}
+
+func (deck *DeckOfCards) PlayedCards(c hand.Cards) {
+	deck.ReturnedCards.Append(c...)
 }
 
 func (d *DeckOfCards) String() (s string) {
