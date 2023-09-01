@@ -18,3 +18,16 @@ Examples:
 | AH,AD,AS,AC | 4,14,14,14,14 |
 | QS,10S,AS   |            21 |
 | QS,10S,3S   |               |
+
+Scenario Outline: A Hand Can be Displayed
+Given a hand with cards "<Hand>"
+Then it will be displayed as "<Display>"
+
+Examples:
+|    Hand     |               Display |
+| 2H,10S      | Hand:\n  ┌───────┒  ┌───────┒\n  │♥ 2    ┃  │♠10    ┃\n  │       ┃  │       ┃\n  │       ┃  │       ┃\n  │    ♥ 2┃  │    ♠10┃\n  ┕━━━━━━━┛  ┕━━━━━━━┛\n  |
+| 2h,10S      | Hand:\n  ┌───────┒  ┌───────┒\n  │ ╬╬╬╬╬ ┃  │♠10    ┃\n  │ ╬╬╬╬╬ ┃  │       ┃\n  │ ╬╬╬╬╬ ┃  │       ┃\n  │ ╬╬╬╬╬ ┃  │    ♠10┃\n  ┕━━━━━━━┛  ┕━━━━━━━┛\n  |
+
+
+
+
