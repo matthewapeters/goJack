@@ -87,3 +87,11 @@ func (c *Card) BaseValue() (v int) {
 	v = Values[c.FaceValue][0]
 	return
 }
+
+func (s Suit) String() string {
+	return string(s.SuitSymbol)
+}
+
+func (fv FaceValue) String() string {
+	return fv.Name
+}

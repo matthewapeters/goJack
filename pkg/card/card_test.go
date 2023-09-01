@@ -84,7 +84,7 @@ func aCardWithSuitOfSpadesAndAFaceValueOfThree() (context.Context, error) {
 
 func itsStringValueWillBeAce(ctx context.Context) error {
 	c := ctx.Value("CARD").(*card.Card)
-	expected := fmt.Sprintf("%s %s", card.Hearts, card.Ace)
+	expected := fmt.Sprintf("%s%s", card.Hearts, card.Ace)
 	if c.String() != expected {
 		return fmt.Errorf("EXPECTED %s got %s", expected, c.String())
 	}
@@ -93,7 +93,7 @@ func itsStringValueWillBeAce(ctx context.Context) error {
 
 func itsStringValueWillBeFour(ctx context.Context) error {
 	c := ctx.Value("CARD").(*card.Card)
-	expected := fmt.Sprintf("%s %s", card.Clubs, card.Four)
+	expected := fmt.Sprintf("%s%s", card.Clubs, card.Four)
 	if c.String() != expected {
 		return fmt.Errorf("EXPECTED %s got %s", expected, c.String())
 	}
@@ -102,7 +102,7 @@ func itsStringValueWillBeFour(ctx context.Context) error {
 
 func itsStringValueWillBeThree(ctx context.Context) error {
 	c := ctx.Value("CARD").(*card.Card)
-	expected := fmt.Sprintf("%s %s", card.Spades, card.Three)
+	expected := fmt.Sprintf("%s%s", card.Spades, card.Three)
 	if c.String() != expected {
 		return fmt.Errorf("EXPECTED %s got %s", expected, c.String())
 	}
