@@ -1,5 +1,12 @@
 Feature: A Hand Has Values
 
+# NOTE:  For Card shorthand:
+# <FaceValue><First Letter of Suit>
+# If the first letter of the suit is capitalized, it is face-up
+# Lowercase suit indicates a face-down card
+#
+
+
 Scenario Outline: A Hand Can Have More Than One Value
 Given a hand with cards "<Hand>"
 Then it may have these "<Values>" below or equal to 21
