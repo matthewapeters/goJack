@@ -23,6 +23,7 @@ type game struct {
 	Scores    map[*player.Player]int
 	Quit      bool
 	HasWinner bool
+	Results   string
 }
 
 func (g *game) AllStay() bool {
@@ -56,6 +57,8 @@ func (g *game) NotBustedPlayers() (players []*player.Player) {
 }
 
 func (g *game) NewHand() {
+	g.Results = ""
+	// Gather all of the cards from the players
 	for _, p := range g.Players {
 		Game.Dealer.GatherPlayedCards(*p.Hand.TheCards)
 		p.NewGame()
@@ -100,7 +103,6 @@ func Play(n ...string) {
 		}
 	}
 	Rounds := 0
-	gameResult := ""
 	ClearScreen()
 	for Game.Quit != true {
 		Game.NewHand()
@@ -114,7 +116,7 @@ func Play(n ...string) {
 			// If the dealer is showing 21 or more, then they must have busted - all other players win
 			if !Game.HasWinner && Game.Dealer.Player.Scores()[player.MIN] >= 21 {
 				Game.HasWinner = true
-				gameResult += fmt.Sprintf("The Dealer is showing %d - the Dealer Goes Bust!\n",
+				Game.Results += fmt.Sprintf("The Dealer is showing %d - the Dealer Goes Bust!\n",
 					Game.Dealer.Player.Scores()[player.MIN])
 				for _, p := range Game.NotBustedPlayers() {
 					Game.Scores[p] += 1
@@ -122,7 +124,7 @@ func Play(n ...string) {
 			}
 
 			if !Game.HasWinner && Game.Dealer.GoesBust() {
-				gameResult = "Dealer Goes Bust!"
+				Game.Results = "Dealer Goes Bust!"
 				for _, player := range Game.Players {
 					Game.Scores[player] += 1
 				}
@@ -136,7 +138,7 @@ func Play(n ...string) {
 			// if Player goes bust, the dealer wins
 			for _, p := range Game.Players {
 				if !Game.HasWinner && p.GoesBust() {
-					gameResult += fmt.Sprintf("%s Goes Bust!\n", p.Name)
+					Game.Results += fmt.Sprintf("%s Goes Bust!\n", p.Name)
 					Game.HasWinner = true
 				}
 				if Game.HasWinner {
@@ -197,7 +199,7 @@ func Play(n ...string) {
 		// Evaluate final scores
 		if Game.AllStay() {
 			if Game.Dealer.GoesBust() {
-				gameResult += "Dealer Goes Bust!\n"
+				Game.Results += "Dealer Goes Bust!\n"
 				for _, p := range Game.Players {
 					Game.Scores[p] += 1
 				}
@@ -205,13 +207,13 @@ func Play(n ...string) {
 				for _, p := range Game.Players {
 					if Game.Dealer.Player.Scores()[player.MAX] >= p.Scores()[player.MAX] {
 						Game.Scores[Game.Dealer.Player] += 1
-						gameResult += fmt.Sprintf("Dealer has %d, %s has %d.  Dealer Wins!\n",
+						Game.Results += fmt.Sprintf("Dealer has %d, %s has %d.  Dealer Wins!\n",
 							Game.Dealer.Player.Scores()[player.MAX],
 							p.Name,
 							p.Scores()[player.MAX])
 					} else {
 						Game.Scores[p] += 1
-						gameResult = fmt.Sprintf("Dealer has %d, %s has %d.  %s Wins!\n",
+						Game.Results += fmt.Sprintf("Dealer has %d, %s has %d.  %s Wins!\n",
 							Game.Dealer.Player.Scores()[player.MAX],
 							p.Name,
 							p.Scores()[player.MAX],
@@ -221,7 +223,7 @@ func Play(n ...string) {
 			}
 		}
 		// show final game result
-		fmt.Println(gameResult)
+		fmt.Println(Game.Results)
 		// show total game scores:
 		fmt.Printf("PLAYER:\t\tSCORE:\n")
 		for k, v := range Game.Scores {

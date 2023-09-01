@@ -31,8 +31,7 @@ func NewDeck() (deck *DeckOfCards) {
 
 func (deck *DeckOfCards) Shuffle() {
 	var pickCard int
-	src := rand.NewSource(time.Now().UTC().Unix())
-	r := rand.New(src)
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 	// swap the existing hand with a new hand
 	oldHand := deck.Cards
 	deck.Cards = hand.NewHand()
@@ -50,12 +49,12 @@ func (deck *DeckOfCards) Shuffle() {
 }
 
 func (deck *DeckOfCards) NewGame() {
-	deck.GameCount += 1
-	if deck.GameCount > 3 {
+	if deck.GameCount%3 == 0 {
 		deck.gatherAllCards()
 		deck.Shuffle()
 		deck.GameCount = 1
 	}
+	deck.GameCount += 1
 }
 
 func (deck *DeckOfCards) gatherAllCards() {
