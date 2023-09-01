@@ -1,6 +1,7 @@
 package deck
 
 import (
+	"fmt"
 	"math/rand"
 	"time"
 
@@ -44,4 +45,12 @@ func (deck *DeckOfCards) Shuffle() {
 		//deal card from random pick of old hand into the new hand
 		deck.Cards.Takes(oldHand.GiveCard(pickCard))
 	}
+}
+
+func (d *DeckOfCards) String() (s string) {
+	s = "Deck:\n"
+	for _, c := range *d.Cards.TheCards {
+		s += fmt.Sprintf("    %s\n", c)
+	}
+	return
 }
