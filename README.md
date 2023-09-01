@@ -101,21 +101,27 @@ Aces, therefore, represent a branching in possible scoring, introducing a scorin
 
 Hands also have a preferred order for card presentation - that is, cards are displayed as they are dealt.
 
-I have opted to use a tree to represent a hand, with new cards being added as leaves.  Each card's Value Path links to subsequently received card.
+I have opted to use a slice of card pointers to represent the cards taken into a hand.
+However, as a means of scoring, goJack somewhat simulates the recursive tree traversal algorithm for
+weighted and directed graphs.
 
 A hand has four key functions: taking a card, giving a card, scoring the hand, and representing the hand (printing it to the screen).
 
 ### Taking a Card ###
 
-The Takes function for the hand takes a card pointer as input. The function uses a recursive traversal until the leaf is found, and then the leaf is updated so its nil-pointing edges now point to the new card.
+The "Takes" function for the hand receives a card pointer as input. It is then appended to the hand's slice of cards.  The score is
+updated.
 
 ### Giving A Card ###
 
-Giving a card is a three step process.  First, the calling function has to pick a card -- that is, it must indicate which card it wants by number. I have chosen to use 1-base indexing for this, as it is a bit incongruous to say "I want the first card so I am passing 0 to the function."  My best technical argument for this is that linked lists are not arrays or slices, and so the 0-based Go language indexing need not apply.  The calling function passes the chosen card number "n" to the GiveCard function, and the second step is for the function to traverse the deck hand until it reaches the n-th card.  Edge conditions for the first and last card are applied, but the normal thrid step happy case is to link the n-th card's parent node to its child nodes, to link the n-th card to nil, and to return the n-th card's pointer
+Giving a card is a three step process.  First, the calling function has to pick a card -- that is, it must indicate which card it wants by number. The calling function passes the chosen card number "n" to the GiveCard function, and the second step is for the function selects the card from
+the hand's slice.  The slice is then recreated without this card and the card is returned.  As this is strictly used for shuffling and dealing, the score is not recomputed.
 
 ### Scoring a Hand ###
 
-Each hand is represented as a directed and weighted tree graph, with the first card received as the root, subsequent cards as nodes, and the last card received by a hand is a leaf in the tree with no outgoing edges - or rather, they have a weight, but no subsequent node to link to.  The weight of each edge is one of the card's face values (Aces being the only card with multiple values).  Scoring the hand is a matter of traversing each of the graph's paths from root to leaf.  Paths that exceed 21 are rejected.  The result of this graph traversal is a slice of zero, one, or more values.  A result with no values represents a hand that has gone bust. Finally, the collection of values is evaluated for a minimum value and a maximum value.  These may be the same if no Aces are present in the hand.  The minimum score represents the hand's "Soft Score" and the maximum score represents the "Hard Score".
+Each hand's scoring can be represented as a directed and weighted tree graph, with the first card received as the root, subsequent cards as nodes, and the last card received by a hand is a leaf in the tree with no outgoing edges - or rather, it has weights, but no subsequent node to link to.  The weight of each edge is one of the card's face values (Aces being the only card with multiple values).  Scoring the hand is a matter of traversing each of the graph's paths from root to leaf.  Paths that exceed 21 are rejected.  The result of this graph traversal is a slice of zero, one, or more values.  A result with no values represents a hand that has gone bust. Finally, the collection of values is evaluated for a minimum value and a maximum value.  These may be the same if no Aces are present in the hand.  The minimum score represents the hand's "Soft Score" and the maximum score represents the "Hard Score".
+
+As a special edge case, the dealer's first card is dealt face-down so nobody knows what the dealer's actual hand is worth.  The scoring process skips any cards where FaceDown is true.  At the end of the game, the dealer's first card has FaceDown set to false, and the score is re-calculated to determine the winner.
 
 #### Example One ####
 
@@ -143,12 +149,12 @@ In this example, the hand has received the following cards: a Two, an Ace, anoth
 
 Possible traversals are:
 
-|  PATH                                   | VALUE |
-| ---- | ---- |
-| 2 ->[2]->A->[1]->A->[1]->Q->[10]->nil   | 14    |
-| 2 ->[2]->A->[11]->A->[1]->Q->[10]->nil  | 24 (Goes Bust) |
-| 2 ->[2]->A->[1]->A->[11]->Q->[10]->nil  | 24 (Goes Bust) |
-| 2 ->[2]->A->[11]->A->[11]->Q->[10]->nil | 34 (Goes Bust) |
+|  PATH                           | VALUE           |
+| ----                            | ----            |
+| 2 →[2]→A→[1]→A→[1]→Q→[10]→nil   | 14              |
+| 2 →[2]→A→[11]→A→[1]→Q→[10]→nil  | 24 (Goes Bust)  |
+| 2 →[2]→A→[1]→A→[11]→Q→[10]→nil  | 24 (Goes Bust)  |
+| 2 →[2]→A→[11]→A→[11]→Q→[10]→nil | 34 (Goes Bust)  |
 
 The resulting score is a soft 14.
 
@@ -170,10 +176,10 @@ It is possible to win right out of the gate with the first two cards dealt.  Con
 
 Possible traversals are:
 
-|  PATH                  | VALUE     |
-| ----                   | ----      |
-| J ->[10]->A->[1]->nil  |  11       |
-| J ->[2]->A->[11]->nil  |  21 (Win) |
+|  PATH              | VALUE     |
+| ----               | ----      |
+| J →[10]→A→[1]→nil  |  11       |
+| J →[2]→A→[11]→nil  |  21 (Win) |
 
 The resulting score is a soft 11 and a hard 21.
 
@@ -181,22 +187,31 @@ In the code, the tree traversal determining possible values is the domain of the
 
 ### Drawing the Hand ###
 
-Drawing the hand involves representing the hand as a string.  This is done by traversing the tree and rendering a drawing of each card side by side as terminal ("ascii") art.  It is not true ascii art because terminals have become unicode-capable, but that is not a critical point of discussion.  The String() function is used to return a string that will render the hand when printed to the screen, rather than actually printing it to the screen.  This allows some encapsulation in the interest of integrating the player's name when the hand is rendered in the game package.
+Drawing the hand involves representing the hand as a string.  This is done by iterating the slice of cards and drawing of each card side by side as terminal ("ascii") art.  It is not true ascii art because terminals have become unicode-capable, but that is not a critical point of discussion.  The String() function is used to return a string that will render the hand when printed to the screen.  This allows some encapsulation in the interest of prepending the player's name when the hand is rendered in the game package.
 
-A hand might look something like this:
+A dealer's hand will start with the first card face-down, and will render something like this:
 
-```bash
+```go
 Hand:
-    ┌───────┒   ┌───────┒
-    │♥ 7    ┃   │♥ 5    ┃
-    │       ┃   │       ┃
-    │       ┃   │       ┃
-    │    ♥ 7┃   │    ♥ 5┃
-    ┕━━━━━━━┛   ┕━━━━━━━┛
-
+  ┌───────┒  ┌───────┒
+  │ ╬╬╬╬╬ ┃  │♦ 3    ┃
+  │ ╬╬╬╬╬ ┃  │       ┃
+  │ ╬╬╬╬╬ ┃  │       ┃
+  │ ╬╬╬╬╬ ┃  │    ♦ 3┃
+  ┕━━━━━━━┛  ┕━━━━━━━┛
 ```
 
-From a designer POV, I may want to change the way this is done.  If I were to want to make goJack a desktop based game rather than a terminal-based game, I would have the the hand return a list of the cards as encountered during the traversal.  The actual rendering of the cards would then become the domain of the game package, following the ever-popular MVC model.  I might not remove the String() function, as it could still be used in terminal-mode, but it would likely not be very effective as a means of logging the hand.  Further more, scoring the hand produces the list of cards which might satisfy this move and remove the need for multiple traversal implementations.  Futher game optimization would include scoring the hand and generating the list of cards upon receiving each new card, so the Score() and String() function could simply read the results of these instead of re-traversing the tree on demand.  It is an interesting idea - and that is why we write README files!
+The player's hand will start with both cards showing (to the player, the dealer does not peek!) and looks something like this:
+
+```go
+Hand:
+  ┌───────┒  ┌───────┒
+  │♠ 3    ┃  │♦ K    ┃
+  │       ┃  │       ┃
+  │       ┃  │       ┃
+  │    ♠ 3┃  │    ♦ K┃
+  ┕━━━━━━━┛  ┕━━━━━━━┛
+```
 
 ## Deck ##
 
@@ -208,7 +223,7 @@ The deck has one key functionality, shuffling the deck.
 
 The one thing that makes a deck different from a hand is that it has the need to be shuffled.  I have chosen to implement suffling as dealing from one hand to another through picking a random card between the first and last remaining in the deck.  The new hand becomes the hand within the shuffled deck.  In this way, the logic of composite design makes more sense than inherited class design.
 
-To implement the shuffle, we loop 52 times, using a decrementing variable which represents the number of cards remaining.  A random integer is selected between 0 and the the remaining number of cards (excluding the number of cards), and we add 1 to the random number.  This allows us to select the top card (1) and the bottom card (initially 52).  We traverse the deck hand the chosen number of times, remove the corresponding card, re-link the hand tree graph edges, and return the selected card.
+To implement the shuffle, we loop 52 times, using a decrementing variable which represents the number of cards remaining.  A random integer is selected between 0 and the the remaining number of cards (excluding the number of cards), and we add 1 to the random number.  This allows us to select the top card (1) and the bottom card (initially 52).  We use the hand's "GiveCard" to accomplish this.
 
 On the last iteration, the random function (rand.Intn) cannot chose between 0 and 0, so we simply skip generating a random number and give the remaining top card.
 
