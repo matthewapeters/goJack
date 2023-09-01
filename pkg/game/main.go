@@ -3,6 +3,7 @@ package game
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/matthewapeters/gojack/pkg/dealer"
 	"github.com/matthewapeters/gojack/pkg/player"
@@ -11,63 +12,81 @@ import (
 var (
 	Dealer    = dealer.NewDealer()
 	PlayerOne = player.NewPlayer("PlayerOne")
+	scores    = map[*player.Player]int{}
 )
+
+func ShowCards() {
+	ClearScreen()
+
+	//Dealer shows Hand
+	fmt.Printf("Dealer's %s\n", Dealer.Player.Hand)
+
+	fmt.Printf(strings.Repeat("\n", 4))
+
+	//Show PlayerOne's Hand
+	fmt.Printf("%s's %s\n", PlayerOne.Name, PlayerOne.Hand)
+	fmt.Printf(strings.Repeat("\n", 4))
+}
 
 func Play(n string) {
 	PlayerOne.Name = n
 	Rounds := 0
 	quit := false
-	scores := map[*player.Player]int{}
+	gameResult := ""
 	ClearScreen()
 	for quit != true {
 		Rounds += 1
 		winner := false
 		// Dealer Shuffles the Deck
 		Dealer.Shuffles()
-		// Dealer takes two cards
-		Dealer.Player.Hand.Takes(Dealer.Deck.Cards.GiveCard(1))
-		Dealer.Player.Hand.Takes(Dealer.Deck.Cards.GiveCard(1))
-		// Player takes first two cards
-		PlayerOne.Hand.Takes(Dealer.Deck.Cards.GiveCard(1))
-		PlayerOne.Hand.Takes(Dealer.Deck.Cards.GiveCard(1))
+		// Dealer deals 2 cards to each player
+		for i := 0; i < 2; i++ {
+			PlayerOne.Hand.Takes(Dealer.Deck.Cards.GiveCard(1))
+			Dealer.Player.Hand.Takes(Dealer.Deck.Cards.GiveCard(1))
+			// The first dealer's card is dealt face-down
+			if i == 0 {
+				(*Dealer.Player.Hand.TheCards)[0].FaceDown = true
+			}
+		}
 
 		// Begin Play Loop
 		for !winner {
-			//Dealer shows Hand
-			fmt.Printf("Dealer's %s\n", Dealer.Player.Hand)
-			fmt.Printf("Dealer's Hand Worth: %v\n", Dealer.Player.Scores())
+			ShowCards()
 
 			// If Dealer Hits 21, Dealer Wins
-			if Dealer.Player.HitsTwentyOne() {
-				fmt.Println("Dealer Hits 21!")
+			if !winner && Dealer.Player.HitsTwentyOne() {
+				gameResult = "Dealer Hits 21!"
 				scores[Dealer.Player] += 1
 				winner = true
 			}
-			if Dealer.Player.GoesBust() {
-				fmt.Println("Dealer Goes Bust!")
+			if !winner && Dealer.Player.GoesBust() {
+				gameResult = "Dealer Goes Bust!"
 				scores[PlayerOne] += 1
 				winner = true
 			}
 
-			//Show PlayerOne's Hand
-			fmt.Printf("%s's %s\n", PlayerOne.Name, PlayerOne.Hand)
-			fmt.Printf("%s Hand Worth: %v\n", PlayerOne.Name, PlayerOne.Scores())
-
-			// if Player has 21, player wins (unless dealer has already won)
-			if PlayerOne.HitsTwentyOne() && !winner {
-				fmt.Printf("%s Hits 21!\n", PlayerOne.Name)
-				scores[PlayerOne] += 1
-				winner = true
-			}
-			// if Player goes bust, the dealer wins
-			if PlayerOne.GoesBust() {
-				fmt.Printf("%s Goes Bust!\n", PlayerOne.Name)
-				scores[Dealer.Player] += 1
-				winner = true
-			}
 			if winner {
 				break
 			}
+
+			// if Player has 21, player wins (unless dealer has already won)
+			if !winner && PlayerOne.HitsTwentyOne() {
+				gameResult = fmt.Sprintf("%s Hits 21!\n", PlayerOne.Name)
+				scores[PlayerOne] += 1
+				winner = true
+			}
+
+			// if Player goes bust, the dealer wins
+			if !winner && PlayerOne.GoesBust() {
+				gameResult = fmt.Sprintf("%s Goes Bust!\n", PlayerOne.Name)
+				scores[Dealer.Player] += 1
+				winner = true
+			}
+
+			if winner {
+				break
+			}
+			// Player gets to choose next move first
 			choiceMade := false
 			for !choiceMade && PlayerOne.Choice == player.HIT {
 				fmt.Printf("%s: (H)it or (S)tay? ", PlayerOne.Name)
@@ -77,33 +96,46 @@ func Play(n string) {
 			}
 			if PlayerOne.Choice == player.HIT {
 				PlayerOne.Hand.Takes(Dealer.Deck.Cards.GiveCard(1))
+				ShowCards()
 			}
 
+			// Dealer decides to hit or stay
 			if Dealer.Player.Scores()[player.MAX] < 17 {
 				Dealer.Player.Choice = player.HIT
+				fmt.Printf("Dealer takes a card.")
 				Dealer.Player.Hand.Takes(Dealer.Deck.Cards.GiveCard(1))
 			} else {
 				fmt.Printf("Dealer Shows %d - cannot hit over 17!\n", Dealer.Player.Scores()[player.MAX])
 				Dealer.Player.Choice = player.STAY
 			}
+			time.Sleep(3 * time.Second)
 
+			// if both players have chosen to stay, rounds are over, determine player with highest score
 			if Dealer.Player.Choice == player.STAY && PlayerOne.Choice == player.STAY {
-				winner = true
-				if Dealer.Player.Scores()[player.MAX] >= PlayerOne.Scores()[player.MAX] {
-					scores[Dealer.Player] += 1
-					fmt.Printf("Dealer has %d, %s has %d.  Dealer Wins!\n",
-						Dealer.Player.Scores()[player.MAX],
-						PlayerOne.Name,
-						PlayerOne.Scores()[player.MAX])
-				} else {
-					scores[PlayerOne] += 1
-					fmt.Printf("%s Wins!\n", PlayerOne.Name)
-				}
+				break
 			}
-			// Clear Screen
-			ClearScreen()
 		}
-
+		Dealer.RevealFirstCard()
+		ShowCards()
+		// Evaluate final scores
+		if Dealer.Player.Choice == player.STAY && PlayerOne.Choice == player.STAY {
+			if Dealer.Player.Scores()[player.MAX] >= PlayerOne.Scores()[player.MAX] {
+				scores[Dealer.Player] += 1
+				gameResult = fmt.Sprintf("Dealer has %d, %s has %d.  Dealer Wins!\n",
+					Dealer.Player.Scores()[player.MAX],
+					PlayerOne.Name,
+					PlayerOne.Scores()[player.MAX])
+			} else {
+				scores[PlayerOne] += 1
+				gameResult = fmt.Sprintf("Dealer has %d, %s has %d.  %s Wins!\n",
+					Dealer.Player.Scores()[player.MAX],
+					PlayerOne.Name,
+					PlayerOne.Scores()[player.MAX],
+					PlayerOne.Name)
+			}
+		}
+		// show final game result
+		fmt.Println(gameResult)
 		// show total game scores:
 		fmt.Printf("PLAYER:\t\tSCORE:\n")
 		for k, v := range scores {
@@ -135,7 +167,8 @@ func Play(n string) {
 }
 
 func ClearScreen() {
-	fmt.Print(strings.Repeat("\n", 20))
+	// Actually, just CR until it should be blank
+	fmt.Print(strings.Repeat("\n", 50))
 }
 
 func TitleArt() {

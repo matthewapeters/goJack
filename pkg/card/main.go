@@ -36,7 +36,7 @@ type Suit struct {
 type Card struct {
 	Suit
 	FaceValue
-	ValuePath map[int]*Card
+	FaceDown bool
 }
 
 var (
@@ -75,58 +75,8 @@ func NewCard(s Suit, v FaceValue) (c *Card) {
 		valuePaths[Values[v][i]] = nil
 	}
 
-	c = &Card{Suit: s, FaceValue: v, ValuePath: valuePaths}
+	c = &Card{Suit: s, FaceValue: v} //ValuePath: valuePaths}
 	return
-}
-
-/*
-*
-addNextCard recursively traverses the hand's FirstCard ValuePath and
-adds 'new' to the leaf of each path.  For all new cards but Aces, this
-introduces a node that is a linked list.  For Aces, it adds a branching
-node with possible values of 1 and 11.
-
-Example One:
-
-[King of Hearts]
-
-	             10
-			    [Ace of Spades]
-			    1             			11
-			    [Two of Diamonds]      [Two of Diamonds]
-
-PossibleValues:
-
-	13                     23
-
-Example Two:
-[Two of Diamonds]
-2
-[Ace of Hearts]
-1             			11
-[Ace of Spades]         [Ace of Spades]
-1           11          1             11
-PossibleValues:
-4           14          14            24
-*/
-func (c *Card) AddNextCard(new *Card) (err error) {
-	// No Circular References!
-	if c == new {
-		err = fmt.Errorf("Cannot add %s to %s", new, c)
-		return err
-	}
-	var val int
-	var crd *Card
-	for val, crd = range c.ValuePath {
-		if crd == nil {
-			//fmt.Printf("%s next card (%d) is %s   %+v\n", c, val, new, c.ValuePath)
-			c.ValuePath[val] = new
-		}
-	}
-	if c.ValuePath[val] != new {
-		c.ValuePath[val].AddNextCard(new)
-	}
-	return nil
 }
 
 func (c *Card) String() string {
@@ -135,9 +85,5 @@ func (c *Card) String() string {
 
 func (c *Card) BaseValue() (v int) {
 	v = Values[c.FaceValue][0]
-	return
-}
-func (c *Card) NextCard() (nxt *Card) {
-	nxt = c.ValuePath[c.BaseValue()]
 	return
 }

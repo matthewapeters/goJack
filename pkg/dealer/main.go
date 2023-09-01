@@ -30,3 +30,8 @@ func (d *Dealer) NewGame() {
 	d.Deck = deck.NewDeck()
 	d.Player.Hand = hand.NewHand()
 }
+
+func (d *Dealer) RevealFirstCard() {
+	//Reveal the dealer's first card
+	d.Player.Hand.RevealFirstCard()
+}

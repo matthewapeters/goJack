@@ -30,15 +30,18 @@ func (deck *DeckOfCards) Shuffle() {
 	var pickCard int
 	src := rand.NewSource(time.Now().UTC().Unix())
 	r := rand.New(src)
-	hand := hand.NewHand()
-	for remainingCards := 52; remainingCards > 0; remainingCards-- {
-		if remainingCards > 1 {
-			pickCard = r.Intn(remainingCards) + 1
-		} else {
-			pickCard = 1
-		}
-		hand.Takes(deck.Cards.GiveCard(pickCard))
-	}
-	deck.Cards = hand
+	// swap the existing hand with a new hand
+	oldHand := deck.Cards
+	deck.Cards = hand.NewHand()
 
+	// remaining cards is counting down the available indexes of a 52-card deck (0-indexed)
+	for remainingCards := 51; remainingCards >= 0; remainingCards-- {
+		if remainingCards > 0 {
+			pickCard = r.Intn(remainingCards)
+		} else {
+			pickCard = 0
+		}
+		//deal card from random pick of old hand into the new hand
+		deck.Cards.Takes(oldHand.GiveCard(pickCard))
+	}
 }

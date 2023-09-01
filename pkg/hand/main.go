@@ -11,56 +11,57 @@ const (
 	MaxValue = 21
 )
 
+type Cards []*card.Card
+
+func (crds *Cards) Append(v *card.Card) {
+	*crds = append(*crds, v)
+}
+
 type PossibleValue struct {
-	Cards []*card.Card
 	Value int
 }
 
 func (pv *PossibleValue) String() string {
-	return fmt.Sprintf("%d (%s)", pv.Value, pv.Cards)
+	return fmt.Sprintf("%d", pv.Value)
 }
 
 type PossibleValues struct {
 	Values []*PossibleValue
+	Cards  *Cards
 }
 type Hand struct {
-	//Cards     map[card.Suit]map[card.FaceValue]*card.Card
-	FirstCard *card.Card
-	TheScore  []int
-	TheCards  []*card.Card
+	TheScore []int
+	TheCards *Cards
 }
 
 func NewHand() (h *Hand) {
 	h = &Hand{
-		FirstCard: nil,
-		TheCards:  []*card.Card{},
-		TheScore:  []int{},
+		TheCards: &Cards{},
+		TheScore: []int{},
 	}
 	return
 }
 func (h *Hand) Takes(c *card.Card) {
-	if h.FirstCard == nil {
-		h.FirstCard = c
-	} else {
-		h.FirstCard.AddNextCard(c)
-	}
-	h.TheCards = append(h.TheCards, c)
+	h.TheCards.Append(c)
 	scores := []int{}
 	for _, v := range h.values().Values {
 		scores = append(scores, v.Value)
 	}
 	h.TheScore = scores
-
 }
-func (posVals *PossibleValues) evaluatePossibleValues(c *card.Card, p *PossibleValue) {
-	if c == nil {
-		fmt.Printf("evaluatePossibleValues received nil for *card.Card\n")
+
+func (posVals *PossibleValues) evaluatePossibleValues(cardIndex int, p *PossibleValue) {
+	c := (*posVals.Cards)[cardIndex]
+	// If the card is face-down, the facevalue is not computed - just move on to the next card
+	if c.FaceDown {
+		if cardIndex < len(*posVals.Cards)-1 {
+			posVals.evaluatePossibleValues(cardIndex+1, p)
+		}
 		return
 	}
-	//fmt.Printf("evalutaing card %s\n", c)
+
 	// If the addition of this card exceeds MaxValue (21), remove the possible value from values and return
 	if p.Value+card.Values[c.FaceValue][0] > MaxValue {
-		//fmt.Printf("next card %s exceeds %d\n", c, MaxValue)
 		l := len(posVals.Values)
 		for i, v := range posVals.Values {
 			if v == p {
@@ -91,96 +92,70 @@ func (posVals *PossibleValues) evaluatePossibleValues(c *card.Card, p *PossibleV
 	// Evaluate straight linked lists - for Aces, assume the One path by default
 	startValue := p.Value
 	p.Value += card.Values[c.FaceValue][0]
-	//fmt.Printf("DefaultPath: add %d to starting value %d %s\n", card.Values[c.FaceValue][0], startValue, c)
-	p.Cards = append(p.Cards, c)
-	nextCard := c.ValuePath[card.Values[c.FaceValue][0]]
+
+	// Determine if there are more cards to evaluate
+	var nextCard *card.Card
+	if cardIndex < len(*posVals.Cards)-1 {
+		nextCard = (*posVals.Cards)[cardIndex+1]
+	}
+
 	branches := []*PossibleValue{p}
 
+	// If there are possible branches (Aces, for example)
 	for i := 1; i < len(card.Values[c.FaceValue]); i++ {
 		if p.Value-card.Values[c.FaceValue][0]+card.Values[c.FaceValue][i] <= MaxValue {
-			//fmt.Printf("adding possible value (%d) %d to %d %s\n", i, card.Values[c.FaceValue][i], startValue, c)
-			newCards := []*card.Card{}
-			for _, crd := range p.Cards {
-				newCards = append(newCards, crd)
-			}
-			newPossibleValue := &PossibleValue{Cards: newCards, Value: startValue + card.Values[c.FaceValue][i]}
+			newPossibleValue := &PossibleValue{Value: startValue + card.Values[c.FaceValue][i]}
 			branches = append(branches, newPossibleValue)
 			posVals.Values = append(posVals.Values, newPossibleValue)
 		}
 	}
 	if nextCard != nil {
 		for _, pv := range branches {
-			posVals.evaluatePossibleValues(nextCard, pv)
+			posVals.evaluatePossibleValues(cardIndex+1, pv)
 		}
-	} else {
-		//println("no next card")
 	}
 }
+
 func (h *Hand) values() (values *PossibleValues) {
 	p := &PossibleValue{}
-	values = &PossibleValues{Values: []*PossibleValue{p}}
-	if h.FirstCard == nil {
+	values = &PossibleValues{Values: []*PossibleValue{p}, Cards: h.TheCards}
+	if len(*h.TheCards) == 0 {
 		return
 	}
-	values.evaluatePossibleValues(h.FirstCard, p)
+	values.evaluatePossibleValues(0, p)
 	return
 }
 
 // Get the ith card from the hand as dealt, and re-link the remaining cards
-func (h *Hand) GiveCard(i int) (c *card.Card) {
-	// Edge condition: asking for the first card
-	if i == 1 {
-		c = h.FirstCard
-		next := c.NextCard()
-		h.FirstCard = next
-		for val := range c.ValuePath {
-			c.ValuePath[val] = nil
+func (h *Hand) GiveCard(cardIndex int) (c *card.Card) {
+	c = (*h.TheCards)[cardIndex]
+	newCards := &Cards{}
+	for i, c := range *h.TheCards {
+		if i != cardIndex {
+			newCards.Append(c)
 		}
-		return
 	}
-	//fmt.Printf("FirstCard: %+v  ValuePath: %+v  FaceValue: %+v\n", h.FirstCard, h.FirstCard.ValuePath, h.FirstCard.FaceValue)
-	priorCard := h.FirstCard
-	cardList := []*card.Card{h.FirstCard}
-	//fmt.Printf("FirstCard is %s\n", h.FirstCard)
-	theCard := priorCard.NextCard()
-	for j := i - 1; j > 1; j-- {
-		//fmt.Printf("J: %d  %s\n", j, theCard)
-		priorCard = theCard
-		cardList = append(cardList, priorCard)
-		theCard = theCard.NextCard()
-	}
-	// Knitt the next card to the prior card
-	nextCard := theCard.NextCard()
-	for k := range priorCard.ValuePath {
-		priorCard.ValuePath[k] = nextCard
-	}
-
-	// Clear the ValuePath of the card we are giving
-	c = theCard
-	for k := range c.ValuePath {
-		c.ValuePath[k] = nil
-	}
-	// Remove the card from the sorted Cards
-	//delete(h.Cards[c.Suit], c.FaceValue)
-	//fmt.Printf("counted over %d cards %s, and gave %s\n", len(cardList), cardList, c)
-	//fmt.Printf("The new next card after %s is %+v\n", cardList[len(cardList)-1], cardList[len(cardList)-1].ValuePath)
+	h.TheCards = newCards
+	h.values()
 	return
 }
 
 func (h *Hand) String() (s string) {
 	s = "Hand:\n"
-	s0 := ""
-	s1 := ""
-	s2 := ""
-	s3 := ""
-	s4 := ""
+	s0, s1, s2, s3, s4 := "", "", "", "", ""
 
-	for _, k := range h.TheCards {
-		s0 += fmt.Sprintf("\t┌%s────┒", strings.Repeat("─", 3))
-		s1 += fmt.Sprintf("\t│%s    ┃", k)
-		s2 += fmt.Sprintf("\t│  %s  ┃", strings.Repeat(" ", 3))
-		s3 += fmt.Sprintf("\t│    %s┃", k)
-		s4 += fmt.Sprintf("\t┕━━━━%s┛", strings.Repeat("━", 3))
+	for _, k := range *h.TheCards {
+		s0 += fmt.Sprintf("  ┌%s────┒", strings.Repeat("─", 3))
+		if !k.FaceDown {
+			s1 += fmt.Sprintf("  │%s    ┃", k)
+			s2 += fmt.Sprintf("  │  %s  ┃", strings.Repeat(" ", 3))
+			s3 += fmt.Sprintf("  │    %s┃", k)
+		} else {
+			s1 += fmt.Sprintf("  │ %s ┃", strings.Repeat("╬", 5))
+			s2 += s1
+			s3 += s1
+		}
+		s4 += fmt.Sprintf("  ┕━━━━%s┛", strings.Repeat("━", 3))
 	}
 	s0 += "\n"
 	s1 += "\n"
@@ -190,4 +165,13 @@ func (h *Hand) String() (s string) {
 	s += s0 + s1 + s2 + s2 + s3 + s4
 
 	return
+}
+
+func (h *Hand) RevealFirstCard() {
+	(*h.TheCards)[0].FaceDown = false
+	scores := []int{}
+	for _, v := range h.values().Values {
+		scores = append(scores, v.Value)
+	}
+	h.TheScore = scores
 }

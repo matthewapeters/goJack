@@ -219,5 +219,3 @@ On the last iteration, the random function (rand.Intn) cannot chose between 0 an
 ## Game ##
 
 ## The gojack Command ##
-
-
