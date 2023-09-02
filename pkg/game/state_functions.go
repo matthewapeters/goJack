@@ -63,7 +63,7 @@ func dealNewHand() {
 // dealRound
 // internal function called by dealRounds - would like to flatten these!
 // contains call to Game.ShowCards()
-// Resulting States: DetermineResults, GameHasWinner, DealerGoesBust, PlayerGoesBust
+// Resulting States: DealtARound, DetermineResults, GameHasWinner, DealerGoesBust, PlayerGoesBust
 func dealRound() {
 	Game.ShowCards()
 
