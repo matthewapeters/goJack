@@ -16,9 +16,7 @@ var (
 type game struct {
 	*dealer.Dealer
 	player.Players
-	Scores map[*player.Player]int
-	Quit   bool
-	//HasWinner bool
+	Scores  map[*player.Player]int
 	Results string
 	Names   []string
 	State   GameState
