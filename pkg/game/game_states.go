@@ -12,12 +12,12 @@ const (
 	NewHandDealt
 	DealARound
 	DealtARound
+	DealToDealer
 	PlayerGoesBust
-	AllPlayerGoBust
+	AllPlayersGoBust
 	DealerGoesBust
 	AllPlayersStay
 	DetermineResults
-	GameHasWinner // Dealer has gone bust
 	HandIsOver
 	PlayerWantsToPlayAgain
 	PlayerWantsToQuit
@@ -35,13 +35,15 @@ var (
 		NewGame:                initializeGame,
 		Initialized:            startNewHand,
 		NewHand:                dealNewHand,
-		NewHandDealt:           dealRound,
-		DealARound:             dealRound,
+		NewHandDealt:           dealToPlayer,
+		DealARound:             dealToPlayer,
+		DealToDealer:           dealToDealer,
 		DealtARound:            determineIfAllPlayersStay,
-		PlayerGoesBust:         determineHandResults,
-		DealerGoesBust:         determineHandResults,
+		PlayerGoesBust:         determineIfAllPlayersBusted,
+		AllPlayersGoBust:       dealerWins,
+		AllPlayersStay:         dealerRevealsCard,
+		DealerGoesBust:         dealerGoesBust,
 		DetermineResults:       determineHandResults,
-		AllPlayersStay:         determineHandResults,
 		HandIsOver:             playAgain,
 		PlayerWantsToPlayAgain: startNewHand,
 		PlayerWantsToQuit:      sayGoodbye,

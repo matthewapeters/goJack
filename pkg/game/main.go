@@ -8,7 +8,7 @@ import (
 var (
 	theGame = &game{
 		Dealer:  dealer.NewDealer(),
-		Players: player.Players{player.NewPlayer("PlayerOne")},
+		Players: player.Players{},
 		Scores:  map[*player.Player]int{},
 	}
 )
@@ -16,10 +16,11 @@ var (
 type game struct {
 	*dealer.Dealer
 	player.Players
-	Scores  map[*player.Player]int
-	Results string
-	Names   []string
-	State   GameState
+	Scores          map[*player.Player]int
+	Results         string
+	Names           []string
+	State           GameState
+	CurrentPlayerID int
 }
 
 func (g *game) AllStay() bool {

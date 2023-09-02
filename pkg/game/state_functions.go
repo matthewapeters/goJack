@@ -11,16 +11,12 @@ import (
 // initializeGame
 // creates new players
 // Triggering States: NewGame
-// Resulting States: NewHand
+// Resulting States: Initialized
 func initializeGame() {
-	for i, name := range theGame.Names {
-		if theGame.Players[i] == nil {
-			theGame.Players[i] = player.NewPlayer(name)
-		} else {
-			theGame.Players[i].Name = name
-		}
+	for _, name := range theGame.Names {
+		theGame.Players = append(theGame.Players, player.NewPlayer(name))
 	}
-	theGame.State = NewHand
+	theGame.State = Initialized
 }
 
 // startNewHand -
@@ -29,6 +25,7 @@ func initializeGame() {
 // Resulting States: NewHand
 func startNewHand() {
 	theGame.Results = ""
+	theGame.CurrentPlayerID = 0
 	// Gather all of the cards from the players
 	for _, p := range theGame.Players {
 		theGame.Dealer.GatherPlayedCards(*p.Hand.TheCards)
@@ -60,133 +57,160 @@ func dealNewHand() {
 	theGame.State = NewHandDealt
 }
 
-// dealRound
-// internal function called by dealRounds - would like to flatten these!
-// contains call to theGameShowCards()
-// Resulting States: DealtARound, DetermineResults, GameHasWinner, DealerGoesBust, PlayerGoesBust
-func dealRound() {
+// dealToPlayer
+// Trigger States: DealARound
+// Resulting States: DealARound, DealToDealer
+func dealToPlayer() {
+	p := theGame.Players[theGame.CurrentPlayerID]
+	choiceMade := false
+
 	theGame.ShowCards()
 
-	// If the dealer is showing 21 or more, then they must have busted - all other players win
-	if theGame.State != GameHasWinner && theGame.Dealer.Player.Scores()[player.MIN] >= 21 {
-		theGame.State = DealerGoesBust
-		theGame.Results += fmt.Sprintf("The Dealer is showing %d - the Dealer Goes Bust!\n",
-			theGame.Dealer.Player.Scores()[player.MIN])
-		for _, p := range theGame.NotBustedPlayers() {
-			theGame.Scores[p] += 1
+	if p.GoesBust() {
+		// Player went bust on last card, play goes to next player or the Dealer
+		fmt.Printf("%s Goes Bust!\n", p.Name)
+		theGame.CurrentPlayerID += 1
+		if theGame.CurrentPlayerID == len(theGame.Players) {
+			theGame.State = DealToDealer
 		}
-	}
-
-	if theGame.State != GameHasWinner && theGame.Dealer.GoesBust() {
-		theGame.Results = "Dealer Goes Bust!"
-		for _, player := range theGame.Players {
-			theGame.Scores[player] += 1
-		}
-		theGame.State = DealerGoesBust
-	}
-
-	if theGame.State == DealerGoesBust {
+		time.Sleep(2 * time.Second)
 		return
 	}
 
-	// if Player goes bust, the dealer wins
-	for _, p := range theGame.Players {
-		if theGame.State != GameHasWinner && p.GoesBust() {
-			theGame.Results += fmt.Sprintf("%s Goes Bust!\n", p.Name)
-			theGame.State = PlayerGoesBust
-		}
-		if theGame.State == GameHasWinner {
-			theGame.Scores[theGame.Dealer.Player] += 1
-		}
+	// What does the player want to do?
+	for !choiceMade && p.Choice == player.HIT {
+		fmt.Printf("%s: (H)it or (S)tay? ", p.Name)
+		var choice string
+		fmt.Scanln(&choice)
+		choiceMade = p.MakeChoice(choice)
 	}
 
-	if theGame.State == PlayerGoesBust {
-		return
-	}
-	// Player gets to choose next move first
-	for _, p := range theGame.NotBustedPlayers() {
-		choiceMade := false
-		for !choiceMade && p.Choice == player.HIT {
-			fmt.Printf("%s: (H)it or (S)tay? ", p.Name)
-			var choice string
-			fmt.Scanln(&choice)
-			choiceMade = p.MakeChoice(choice)
-		}
-		if p.Choice == player.HIT {
-			p.Hand.Takes(theGame.Dealer.Deck.Cards.GiveCard(1))
-			theGame.ShowCards()
-		}
-	}
-
-	// Dealer decides to hit or stay
-	if theGame.Dealer.Player.Scores()[player.MAX] < 17 {
-		fmt.Printf("Dealer takes a card.")
-		theGame.Dealer.Player.Hand.Takes(theGame.Dealer.Deck.Cards.GiveCard(1))
-		time.Sleep(3 * time.Second)
+	if p.Choice == player.HIT {
+		p.Hand.Takes(theGame.Dealer.Deck.Cards.GiveCard(1))
 	} else {
-		fmt.Printf("Dealer Shows %d - cannot hit over 17!\n", theGame.Dealer.Player.Scores()[player.MAX])
-		theGame.Dealer.Player.Choice = player.STAY
-		time.Sleep(3 * time.Second)
+		// Player choses to Stay, play goes to next player or the Dealer
+		theGame.CurrentPlayerID += 1
+		if theGame.CurrentPlayerID == len(theGame.Players) {
+			theGame.State = DealToDealer
+		}
 	}
-	theGame.State = DealtARound
 }
 
-// deternubeUfAllPlayersStay
-// Triggering State:
-// ResultingStates: AllPlayersStay, DealARound
+// dealToDealer
+// Trigger States: DealToDealer
+// Resulting States; DealToDealer, DealtARound, DealerGoesBust
+func dealToDealer() {
+	theGame.ShowCards()
+
+	if theGame.Dealer.GoesBust() {
+		theGame.Results += fmt.Sprintf("the Dealer Goes Bust!\n")
+		theGame.State = DealerGoesBust
+		return
+	}
+	if theGame.Dealer.Player.Scores()[player.MAX] < 7 {
+		fmt.Printf("Dealer takes a card.  ")
+		theGame.Dealer.Player.Hand.Takes(theGame.Dealer.Deck.Cards.GiveCard(1))
+		time.Sleep(2 * time.Second)
+	} else {
+		fmt.Printf("Dealer Shows %d - will not hit over presumed 17!\n", theGame.Dealer.Player.Scores()[player.MAX])
+		theGame.Dealer.Player.Choice = player.STAY
+		time.Sleep(2 * time.Second)
+		theGame.State = DealtARound
+	}
+}
+
+// deternubeIfAllPlayersStay
+// Triggering State: DealtARound
+// ResultingStates: AllPlayersStay
 func determineIfAllPlayersStay() {
 	if theGame.AllStay() {
 		theGame.State = AllPlayersStay
 		fmt.Println("All Players Have Chosen to Stay")
 		time.Sleep(3 * time.Second)
+	}
+}
+
+// determineIfAllPlayersBusted
+// after dealing a round, some of the players may have busted.
+// Determine if they have all busted (which means the dealer wins and has nothing to prove)
+// Triggering State: PlayerGoesBust
+// Resulting States: DealARound, AllPlayersBusted,
+func determineIfAllPlayersBusted() {
+	if theGame.AllPlayersBusted() {
+		theGame.State = AllPlayersGoBust
 	} else {
+		// this occurs only for multi-player future variant
 		theGame.State = DealARound
 	}
 }
 
+// dealerRevealsCard
+// Triggering States: AllPlayersStay
+// ResultingStates: DetermineResults, DealerGoesBust
+func dealerRevealsCard() {
+	theGame.Dealer.RevealFirstCard()
+	theGame.ShowCards()
+	if theGame.Dealer.GoesBust() {
+		theGame.Results += "Dealer Goes Bust!\n"
+		theGame.State = DealerGoesBust
+		return
+	}
+	theGame.State = DetermineResults
+}
+
+// dealerGoesBust
+// Triggering States:
+// Resulting States: HandIsOver
+func dealerGoesBust() {
+	for _, p := range theGame.NotBustedPlayers() {
+		theGame.Scores[p] += 1
+	}
+	theGame.State = HandIsOver
+}
+
+// dealerWins
+// Triggering States: AllPlayersGoBust
+// Resulting States: HandIsOver
+func dealerWins() {
+	theGame.Results += "Dealer Wins! \n"
+	theGame.Scores[theGame.Dealer.Player] += 1
+	theGame.State = HandIsOver
+}
+
 // determineResults
 // contains call to theGameShowCards()
-// Triggering States: PlayerGoesBust, DealerGoesBust, DetermineResults, AllPlayersStay
+// Triggering States: DetermineResults
 // Resulting States: HandIsOver
 func determineHandResults() {
-	// If the players have all busted, the dealer does not have to show card!
-	if !theGame.AllPlayersBusted() {
-		// If the dealer is showing a hard 21 without revealing, then dealer has busted
-		if theGame.Dealer.GoesBust() {
-			for _, p := range theGame.Players {
-				theGame.Scores[p] += 1
-			}
-		} else {
-			theGame.Dealer.RevealFirstCard()
-			theGame.ShowCards()
-		}
-	}
 	// Evaluate final scores
-	if theGame.AllStay() {
-		if theGame.Dealer.GoesBust() {
-			theGame.Results += "Dealer Goes Bust!\n"
-			for _, p := range theGame.Players {
-				theGame.Scores[p] += 1
+	for _, p := range theGame.Players {
+		if theGame.Dealer.Player.Scores()[player.MAX] >= p.Scores()[player.MAX] {
+			theGame.Scores[theGame.Dealer.Player] += 1
+			if p.Scores()[player.MAX] == 0 {
+				theGame.Results += fmt.Sprintf("%s Goes Bust!  Dealer Wins.\n", p.Name)
+			} else {
+				theGame.Results += fmt.Sprintf("Dealer has %d, %s has %d.  Dealer Wins!\n",
+					theGame.Dealer.Player.Scores()[player.MAX],
+					p.Name,
+					p.Scores()[player.MAX])
 			}
 		} else {
-			for _, p := range theGame.Players {
-				if theGame.Dealer.Player.Scores()[player.MAX] >= p.Scores()[player.MAX] {
-					theGame.Scores[theGame.Dealer.Player] += 1
-					theGame.Results += fmt.Sprintf("Dealer has %d, %s has %d.  Dealer Wins!\n",
-						theGame.Dealer.Player.Scores()[player.MAX],
-						p.Name,
-						p.Scores()[player.MAX])
-				} else {
-					theGame.Scores[p] += 1
-					theGame.Results += fmt.Sprintf("Dealer has %d, %s has %d.  %s Wins!\n",
-						theGame.Dealer.Player.Scores()[player.MAX],
-						p.Name,
-						p.Scores()[player.MAX],
-						p.Name)
-				}
-			}
+			theGame.Scores[p] += 1
+			theGame.Results += fmt.Sprintf("Dealer has %d, %s has %d.  %s Wins!\n",
+				theGame.Dealer.Player.Scores()[player.MAX],
+				p.Name,
+				p.Scores()[player.MAX],
+				p.Name)
 		}
 	}
+	theGame.State = HandIsOver
+}
+
+// playAgain
+// display hand and game stats, determines if players want to continue playing
+// Triggering States: HandIsOver
+// Resulting States: PlayerWantsToPlayAgain, GameOver
+func playAgain() {
 	// show final game result
 	fmt.Println(theGame.Results)
 	// show total game scores:
@@ -194,32 +218,28 @@ func determineHandResults() {
 	for k, v := range theGame.Scores {
 		fmt.Printf("%s:\t\t%d\n", k.Name, v)
 	}
-	theGame.State = HandIsOver
-}
+	names := []string{}
 
-// playAgain
-// determines if players want to continue playing
-// Triggering States:
-// Resulting States: PalyerWantsToPlayAgain, GameOver
-func playAgain() {
 	for _, p := range theGame.Players {
-		choice := "N"
-		choiceMade := false
-		for !choiceMade {
-			fmt.Printf("\n%s: Play Again? (Y/N) ", p.Name)
-			fmt.Scanln(&choice)
-			choice = strings.ToUpper(string(choice[0]))
-			switch choice {
-			case "Y":
-				choiceMade = true
-				theGame.State = PlayerWantsToPlayAgain
-			case "N":
-				choiceMade = true
-				theGame.State = PlayerWantsToQuit
-			default:
-				fmt.Println("Dont be goof!")
-				choiceMade = false
-			}
+		names = append(names, p.Name)
+	}
+	nameList := strings.Join(names, " and ")
+	choice := "N"
+	choiceMade := false
+	for !choiceMade {
+		fmt.Printf("\n%s: Play Again? (Y/N) ", nameList)
+		fmt.Scanln(&choice)
+		choice = strings.ToUpper(string(choice[0]))
+		switch choice {
+		case "Y":
+			choiceMade = true
+			theGame.State = PlayerWantsToPlayAgain
+		case "N":
+			choiceMade = true
+			theGame.State = PlayerWantsToQuit
+		default:
+			fmt.Println("Dont be goof!")
+			choiceMade = false
 		}
 	}
 }
@@ -228,8 +248,13 @@ func playAgain() {
 // goodbye message to players
 // Triggereing States: GameOver
 func sayGoodbye() {
+	names := []string{}
+
 	for _, p := range theGame.Players {
-		fmt.Printf("\nGoodbye, %s!  Play GoJack again soon!\n\n", p.Name)
+		names = append(names, p.Name)
 	}
+	nameList := strings.Join(names, " and ")
+
+	fmt.Printf("\nGoodbye, %s!  Play GoJack again soon!\n\n", nameList)
 	theGame.State = GameOver
 }
