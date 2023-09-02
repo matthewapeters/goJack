@@ -45,7 +45,7 @@ g:::::gg   gg:::::g
 	fmt.Println(art)
 }
 
-func ShowCards() {
+func (g *game) ShowCards() {
 	ClearScreen()
 
 	//Dealer shows Hand

@@ -12,9 +12,11 @@ const (
 	NewHandDealt
 	DoingRounds
 	PlayerGoesBust
+	AllPlayerGoBust
 	DealerGoesBust
 	AllPlayersStay
 	DetermineResults
+	GameHasWinner // Dealer has gone bust
 	HandIsOver
 	PlayerWantsToPlayAgain
 	GameOver
@@ -29,13 +31,15 @@ const (
 var (
 	GameStateMachine = StateMachine{
 		NewGame:                initializeGame,
-		Initialized:            Game.NewHand,
+		Initialized:            startNewHand,
 		NewHand:                dealNewHand,
 		NewHandDealt:           dealRounds,
+		PlayerGoesBust:         determineHandResults,
+		DealerGoesBust:         determineHandResults,
 		DetermineResults:       determineHandResults,
 		AllPlayersStay:         determineHandResults,
 		HandIsOver:             playAgain,
-		PlayerWantsToPlayAgain: Game.NewHand,
+		PlayerWantsToPlayAgain: startNewHand,
 		GameOver:               sayGoodbye,
 	}
 )

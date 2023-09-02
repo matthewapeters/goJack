@@ -19,12 +19,12 @@ var (
 type game struct {
 	*dealer.Dealer
 	player.Players
-	Scores    map[*player.Player]int
-	Quit      bool
-	HasWinner bool
-	Results   string
-	Names     []string
-	State     GameState
+	Scores map[*player.Player]int
+	Quit   bool
+	//HasWinner bool
+	Results string
+	Names   []string
+	State   GameState
 }
 
 func (g *game) AllStay() bool {
@@ -55,22 +55,6 @@ func (g *game) NotBustedPlayers() (players []*player.Player) {
 		}
 	}
 	return
-}
-
-func (g *game) NewHand() {
-	g.Results = ""
-	// Gather all of the cards from the players
-	for _, p := range g.Players {
-		Game.Dealer.GatherPlayedCards(*p.Hand.TheCards)
-		p.NewGame()
-	}
-
-	// Dealer initiates new game by returning played cards to deck and shuffling the deck, if necessary
-	g.Dealer.NewGame()
-
-	g.HasWinner = false
-	g.State = NewHand
-
 }
 
 func determineIfAllPlayersStay() {
