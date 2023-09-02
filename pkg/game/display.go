@@ -49,10 +49,10 @@ func (g *game) ShowCards() {
 	ClearScreen()
 
 	//Dealer shows Hand
-	fmt.Printf("Dealer's %s%s", theGame.Dealer.Player.Hand, strings.Repeat("\n", 5))
+	fmt.Printf("Dealer's %s%s", theGame.Dealer.Player.Hand, strings.Repeat("\n", 3))
 
 	//Show PlayerOne's Hand
 	for _, player := range theGame.Players {
-		fmt.Printf("%s's %s%s", player.Name, player.Hand, strings.Repeat("\n", 5))
+		fmt.Printf("%s's %s%s", player.Name, player.Hand, strings.Repeat("\n", 3))
 	}
 }
