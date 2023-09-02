@@ -20,7 +20,10 @@ var (
 )
 
 func NewDeck() (deck *DeckOfCards) {
-	deck = &DeckOfCards{Cards: hand.NewHand(), ReturnedCards: hand.Cards{}}
+	deck = &DeckOfCards{
+		Cards:         hand.NewHand(),
+		ReturnedCards: hand.Cards{},
+	}
 	for _, s := range card.Suits {
 		for _, fv := range card.Cards {
 			deck.Cards.Takes(card.NewCard(s, fv))
@@ -51,7 +54,9 @@ func (deck *DeckOfCards) Shuffle() {
 func (deck *DeckOfCards) NewGame() {
 	if deck.GameCount%3 == 0 {
 		deck.gatherAllCards()
+		fmt.Println("Dealer Is Shuffling Deck")
 		deck.Shuffle()
+		time.Sleep(1 * time.Second)
 		deck.GameCount = 1
 	}
 	deck.GameCount += 1
