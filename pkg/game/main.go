@@ -6,7 +6,7 @@ import (
 )
 
 var (
-	Game = &game{
+	theGame = &game{
 		Dealer:  dealer.NewDealer(),
 		Players: player.Players{player.NewPlayer("PlayerOne")},
 		Scores:  map[*player.Player]int{},
@@ -36,7 +36,7 @@ func (g *game) AllStay() bool {
 
 func (g *game) AllPlayersBusted() (allBusted bool) {
 	allBusted = true
-	for _, p := range Game.Players {
+	for _, p := range theGame.Players {
 		allBusted = allBusted && p.GoesBust()
 	}
 	return
@@ -53,9 +53,9 @@ func (g *game) NotBustedPlayers() (players []*player.Player) {
 }
 
 func Play(n ...string) {
-	Game.Names = n
-	for Game.State != GameOver {
+	theGame.Names = n
+	for theGame.State != GameOver {
 		// Do the next thing the game requires based on state
-		GameStateMachine[Game.State]()
+		GameStateMachine[theGame.State]()
 	}
 }

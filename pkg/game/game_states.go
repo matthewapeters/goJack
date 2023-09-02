@@ -35,7 +35,7 @@ var (
 		NewGame:                initializeGame,
 		Initialized:            startNewHand,
 		NewHand:                dealNewHand,
-		NewHandDealt:           dealRound, //dealRounds,
+		NewHandDealt:           dealRound,
 		DealARound:             dealRound,
 		DealtARound:            determineIfAllPlayersStay,
 		PlayerGoesBust:         determineHandResults,
