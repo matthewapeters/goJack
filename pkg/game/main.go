@@ -1,9 +1,6 @@
 package game
 
 import (
-	"fmt"
-	"time"
-
 	"github.com/matthewapeters/gojack/pkg/dealer"
 	"github.com/matthewapeters/gojack/pkg/player"
 )
@@ -55,14 +52,6 @@ func (g *game) NotBustedPlayers() (players []*player.Player) {
 		}
 	}
 	return
-}
-
-func determineIfAllPlayersStay() {
-	if Game.AllStay() {
-		Game.State = AllPlayersStay
-		fmt.Println("All Players Have Chosen to Stay")
-		time.Sleep(3 * time.Second)
-	}
 }
 
 func Play(n ...string) {

@@ -10,7 +10,8 @@ const (
 	Initialized
 	NewHand
 	NewHandDealt
-	DoingRounds
+	DealARound
+	DealtARound
 	PlayerGoesBust
 	AllPlayerGoBust
 	DealerGoesBust
@@ -19,6 +20,7 @@ const (
 	GameHasWinner // Dealer has gone bust
 	HandIsOver
 	PlayerWantsToPlayAgain
+	PlayerWantsToQuit
 	GameOver
 
 	PlayerChoiceHit = Choice(iota)
@@ -33,13 +35,15 @@ var (
 		NewGame:                initializeGame,
 		Initialized:            startNewHand,
 		NewHand:                dealNewHand,
-		NewHandDealt:           dealRounds,
+		NewHandDealt:           dealRound, //dealRounds,
+		DealARound:             dealRound,
+		DealtARound:            determineIfAllPlayersStay,
 		PlayerGoesBust:         determineHandResults,
 		DealerGoesBust:         determineHandResults,
 		DetermineResults:       determineHandResults,
 		AllPlayersStay:         determineHandResults,
 		HandIsOver:             playAgain,
 		PlayerWantsToPlayAgain: startNewHand,
-		GameOver:               sayGoodbye,
+		PlayerWantsToQuit:      sayGoodbye,
 	}
 )

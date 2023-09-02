@@ -60,6 +60,7 @@ func dealNewHand() {
 	Game.State = NewHandDealt
 }
 
+/*
 // dealRounds
 // Deals new round of one card per player until players stay or go broke
 // Trigger States: NewHandDealt
@@ -89,6 +90,7 @@ func dealRounds() {
 		determineIfAllPlayersStay()
 	}
 }
+*/
 
 // dealRound
 // internal function called by dealRounds - would like to flatten these!
@@ -157,6 +159,20 @@ func dealRound() {
 		fmt.Printf("Dealer Shows %d - cannot hit over 17!\n", Game.Dealer.Player.Scores()[player.MAX])
 		Game.Dealer.Player.Choice = player.STAY
 		time.Sleep(3 * time.Second)
+	}
+	Game.State = DealtARound
+}
+
+// deternubeUfAllPlayersStay
+// Triggering State:
+// ResultingStates: AllPlayersStay, DealARound
+func determineIfAllPlayersStay() {
+	if Game.AllStay() {
+		Game.State = AllPlayersStay
+		fmt.Println("All Players Have Chosen to Stay")
+		time.Sleep(3 * time.Second)
+	} else {
+		Game.State = DealARound
 	}
 }
 
@@ -231,7 +247,7 @@ func playAgain() {
 				Game.State = PlayerWantsToPlayAgain
 			case "N":
 				choiceMade = true
-				Game.State = GameOver
+				Game.State = PlayerWantsToQuit
 			default:
 				fmt.Println("Dont be goof!")
 				choiceMade = false
@@ -247,4 +263,5 @@ func sayGoodbye() {
 	for _, p := range Game.Players {
 		fmt.Printf("\nGoodbye, %s!  Play GoJack again soon!\n\n", p.Name)
 	}
+	Game.State = GameOver
 }
