@@ -60,38 +60,6 @@ func dealNewHand() {
 	Game.State = NewHandDealt
 }
 
-/*
-// dealRounds
-// Deals new round of one card per player until players stay or go broke
-// Trigger States: NewHandDealt
-// Resulting States: AllPlayersStay, DetermineResults
-func dealRounds() {
-	keepDealing := true
-	for keepDealing {
-		dealRound()
-		switch Game.State {
-		case DetermineResults:
-			keepDealing = false
-		case AllPlayersStay:
-			keepDealing = false
-		case GameHasWinner:
-			keepDealing = false
-		case DealerGoesBust:
-			keepDealing = false
-		case PlayerGoesBust:
-			keepDealing = false
-		case AllPlayerGoBust:
-			keepDealing = false
-		}
-		if !keepDealing {
-			return
-		}
-		// if both players have chosen to stay, rounds are over, determine player with highest score
-		determineIfAllPlayersStay()
-	}
-}
-*/
-
 // dealRound
 // internal function called by dealRounds - would like to flatten these!
 // contains call to Game.ShowCards()
