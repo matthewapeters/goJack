@@ -10,7 +10,7 @@ import (
 
 // initializeGame
 // creates new players
-// Triggering States: NewGame
+// Trigger States: NewGame
 // Resulting States: Initialized
 func initializeGame() {
 	for _, name := range theGame.Names {
@@ -58,8 +58,8 @@ func dealNewHand() {
 }
 
 // dealToPlayer
-// Trigger States: DealARound
-// Resulting States: DealARound, DealToDealer
+// Trigger States: DealARound, DealToDealer, NewHandDealt
+// Resulting States: DealARound, PlayerGoesBust
 func dealToPlayer() {
 	p := theGame.Players[theGame.CurrentPlayerID]
 	choiceMade := false
@@ -71,7 +71,7 @@ func dealToPlayer() {
 		fmt.Printf("%s Goes Bust!\n", p.Name)
 		theGame.CurrentPlayerID += 1
 		if theGame.CurrentPlayerID == len(theGame.Players) {
-			theGame.State = DealToDealer
+			theGame.State = PlayerGoesBust
 		}
 		time.Sleep(2 * time.Second)
 		return
@@ -98,7 +98,7 @@ func dealToPlayer() {
 
 // dealToDealer
 // Trigger States: DealToDealer
-// Resulting States; DealToDealer, DealtARound, DealerGoesBust
+// Resulting States: DealToDealer, DealtARound, DealerGoesBust
 func dealToDealer() {
 	theGame.ShowCards()
 
@@ -120,8 +120,8 @@ func dealToDealer() {
 }
 
 // deternubeIfAllPlayersStay
-// Triggering State: DealtARound
-// ResultingStates: AllPlayersStay
+// Trigger States: DealtARound
+// Resulting States: AllPlayersStay
 func determineIfAllPlayersStay() {
 	if theGame.AllStay() {
 		theGame.State = AllPlayersStay
@@ -133,8 +133,8 @@ func determineIfAllPlayersStay() {
 // determineIfAllPlayersBusted
 // after dealing a round, some of the players may have busted.
 // Determine if they have all busted (which means the dealer wins and has nothing to prove)
-// Triggering State: PlayerGoesBust
-// Resulting States: DealARound, AllPlayersBusted,
+// Trigger States: PlayerGoesBust
+// Resulting States: DealARound, AllPlayersGoBust
 func determineIfAllPlayersBusted() {
 	if theGame.AllPlayersBusted() {
 		theGame.State = AllPlayersGoBust
@@ -145,7 +145,7 @@ func determineIfAllPlayersBusted() {
 }
 
 // dealerRevealsCard
-// Triggering States: AllPlayersStay
+// Trigger States: AllPlayersStay
 // ResultingStates: DetermineResults, DealerGoesBust
 func dealerRevealsCard() {
 	theGame.Dealer.RevealFirstCard()
@@ -159,7 +159,7 @@ func dealerRevealsCard() {
 }
 
 // dealerGoesBust
-// Triggering States:
+// Trigger States: DealerGoesBust
 // Resulting States: HandIsOver
 func dealerGoesBust() {
 	for _, p := range theGame.NotBustedPlayers() {
@@ -169,7 +169,7 @@ func dealerGoesBust() {
 }
 
 // dealerWins
-// Triggering States: AllPlayersGoBust
+// Trigger States: AllPlayersGoBust
 // Resulting States: HandIsOver
 func dealerWins() {
 	theGame.Results += "Dealer Wins! \n"
@@ -179,7 +179,7 @@ func dealerWins() {
 
 // determineResults
 // contains call to theGameShowCards()
-// Triggering States: DetermineResults
+// Trigger States: DetermineResults
 // Resulting States: HandIsOver
 func determineHandResults() {
 	// Evaluate final scores
@@ -208,7 +208,7 @@ func determineHandResults() {
 
 // playAgain
 // display hand and game stats, determines if players want to continue playing
-// Triggering States: HandIsOver
+// Trigger States: HandIsOver
 // Resulting States: PlayerWantsToPlayAgain, GameOver
 func playAgain() {
 	// show final game result
