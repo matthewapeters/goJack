@@ -32,14 +32,18 @@ echo -e "
 digraph {
     labelloc=t
     fontsize=20
-    label="'"'"goJack State Machine Game Flow"'"'"" >state-diagram.dot
+    label="'"'"goJack State Machine Game Flow"'"'"
+    rankdir="'"TB"'"" >state-diagram.dot
 
 
 # de-dupe the states into the .dot file
-cat states|sed "s/ /\n/g"|egrep -v "^$"|sort -u|sed "s/^/    /g"|sed "s/$/ \\[shape=\\\"parallelogram\\\"\\]/g">>state-diagram.dot
+cat states|sed "s/ /\n/g"|egrep -v "^$"|sed "s/^/    /g"|sed "s/$/ \\[shape=\\\"parallelogram\\\"\\]/g"|sort -ur>>state-diagram.dot
 cat state-funcs >> state-diagram.dot
 cat relations >> state-diagram.dot
 echo "}" >>state-diagram.dot
 
 # Generate the .png image
 cat state-diagram.dot | dot -Tpng > images/game-states.png
+
+# Cleanup
+rm {state-funcs,states,relations}
