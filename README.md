@@ -127,25 +127,7 @@ As a special edge case, the dealer's first card is dealt face-down so nobody kno
 
 In this example, the hand has received the following cards: a Two, an Ace, another Ace, and a Queen.  The graph is shown below:
 
-```bash
-                2
-                ↓
-               [2]
-                ↓
-                A
-            ↓       ↓
-            [1]    [11]
-            ↓       ↓
-                A
-            ↓       ↓
-           [1]     [11]
-            ↓       ↓
-                Q
-                ↓
-               [10]
-                ↓
-               NIL
-```
+![a directed graph illustrating possible scorings using 2,A,A,Q](images/example1.png)
 
 Possible traversals are:
 
@@ -162,6 +144,7 @@ The resulting score is a soft 14.
 
 It is possible to win right out of the gate with the first two cards dealt.  Consider a player that receives a Jack and then an Ace.
 
+![a directed graph showing possible scores given Jack and Ace](images/example2.png)
 ```bash
                 J
                 ↓

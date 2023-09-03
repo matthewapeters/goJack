@@ -1,0 +1,8 @@
+digraph{
+    node [shape=square]
+    Nil [shape=house]
+
+    Jack -> Ace [label=10]
+    Ace -> Nil:w [label=1]
+    Ace -> Nil:e [label=11]
+}

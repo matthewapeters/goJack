@@ -1,0 +1,11 @@
+digraph{
+    node [shape=square]
+    Nil [shape=house]
+    TwoSpades  -> AceHearts [label=2]
+    AceHearts -> AceClubs:w [label=1,headPort=w]
+    AceHearts -> AceClubs:e [label=11]
+
+    AceClubs -> QueenSpades:w [label=1]
+    AceClubs -> QueenSpades:e [label=11]
+    QueenSpades -> Nil [label=10]
+}
