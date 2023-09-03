@@ -1,0 +1,10 @@
+#! /bin/bash
+
+CONTAINERCOUNT=$(docker images|grep graphviz|wc -l)
+
+if [[ $CONTAINERCOUNT -lt 1 ]];then
+    echo "building the graphviz container ..."
+    docker build .  -t graphviz &>/dev/null
+else
+    echo "Graphviz container already present"
+fi
