@@ -52,18 +52,3 @@ digraph {
     { Initialized PlayerWantsToPlayAgain } -> startNewHand -> { NewHand }
     { NewGame } -> initializeGame -> { Initialized }
 }
-    PlayerWantsToPlayAgain [shape="parallelogram"]
-    PlayerGoesBust [shape="parallelogram"]
-    NewHandDealt [shape="parallelogram"]
-    NewHand [shape="parallelogram"]
-    NewGame [shape="parallelogram"]
-    Initialized [shape="parallelogram"]
-    HandIsOver [shape="parallelogram"]
-    GameOver [shape="parallelogram"]
-    DetermineResults [shape="parallelogram"]
-    DealtARound [shape="parallelogram"]
-    DealerGoesBust [shape="parallelogram"]
-    DealToDealer [shape="parallelogram"]
-    DealARound [shape="parallelogram"]
-    AllPlayersStay [shape="parallelogram"]
-    AllPlayersGoBust [shape="parallelogram"]

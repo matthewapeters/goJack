@@ -39,7 +39,7 @@ digraph {
 
 
 # de-dupe the states into the .dot file
-cat states|sed "s/ /\n/g"|egrep -v "^$"|sed "s/^/    /g"|sed "s/$/ \\[shape=\\\"parallelogram\\\"\\]/g"|sort -ur>>state-diagram.dot
+cat states|sed "s/ /\n/g"|egrep -v "^$"|sed "s/^/    /g"|sed "s/$/ \\[shape=\\\"parallelogram\\\"\\]/g"|sort -ur>>$DOT
 cat state-funcs >> $DOT
 cat relations >> $DOT
 echo "}" >>$DOT
