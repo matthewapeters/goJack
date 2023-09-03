@@ -69,7 +69,7 @@ Tests may periodically break as improvements are added to the game, such as for 
 
 Packages are intended to illustrate compartmentalization of game components.
 
-While Go does not explicitly support Object Oriented Prgramming (OOP) or class inheritence, it does support compositability, allowing for inheritence through inclusion.  Please refer to Go documentation for additional thoughts on this.
+While Go does not explicitly support Object Oriented Prgramming (OOP) or class inheritence, it does support composability, allowing for inheritence through inclusion.  Please refer to Go documentation for additional thoughts on this.
 
 ### Contributing, Forking, &c ###
 
