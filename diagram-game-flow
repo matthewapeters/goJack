@@ -2,7 +2,10 @@
 
 cd /app
 
-echo "digraph {">states.dot
+echo -e "digraph {
+      labelloc=t
+      fontsize=20
+      label="'"'"goJack State Machine Game Flow"'"'"" >states.dot
 
 cat pkg/game/state_functions.go |grep -A2 "Trigger States:"| \
     sed "s/() {//g"|sed "s/^func //g"|sed "s/^\\/\\/ [RT].*: //g"| \

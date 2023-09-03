@@ -1,4 +1,7 @@
 digraph {
+      labelloc=t
+      fontsize=20
+      label="goJack State Machine Game Flow"
 PlayerWantsToPlayAgain GameOver [shape=parallelogram]
 HandIsOver [shape=parallelogram]
 playAgain [shape=box]
