@@ -1,6 +1,11 @@
 package game
 
 import (
+	"bufio"
+	"fmt"
+	"os"
+	"strings"
+
 	"github.com/matthewapeters/gojack/pkg/dealer"
 	"github.com/matthewapeters/gojack/pkg/player"
 )
@@ -59,4 +64,16 @@ func Play(n ...string) {
 		// Do the next thing the game requires based on state
 		GameStateMachine[theGame.State]()
 	}
+}
+
+func RequestPlayerNames() (names []string) {
+	names = []string{}
+	stdinReader := bufio.NewScanner(os.Stdin)
+	fmt.Print("Who Wants to Play? (space-separated list): ")
+	stdinReader.Scan()
+	input := stdinReader.Text()
+	for _, n := range strings.Split(input, " ") {
+		names = append(names, n)
+	}
+	return
 }
