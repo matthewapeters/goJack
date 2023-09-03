@@ -1,32 +1,6 @@
 # goJack #
 
-<pre style="font-size:8px;font-family:monospace">
-
-                                               JJJJJJJJJJJ                                   kkkkkkkk
-                                               J:::::::::J                                   k::::::k
-                                               J:::::::::J                                   k::::::k
-                                               JJ:::::::JJ                                   k::::::k
-   ggggggggg   ggggg   ooooooooooo               J:::::J  aaaaaaaaaaaaa      cccccccccccccccc k:::::k    kkkkkkk
-  g:::::::::ggg::::g oo:::::::::::oo             J:::::J  a::::::::::::a   cc:::::::::::::::c k:::::k   k:::::k
- g:::::::::::::::::go:::::::::::::::o            J:::::J  aaaaaaaaa:::::a c:::::::::::::::::c k:::::k  k:::::k
-g::::::ggggg::::::ggo:::::ooooo:::::o            J:::::j           a::::ac:::::::cccccc:::::c k:::::k k:::::k
-g:::::g     g:::::g o::::o     o::::o            J:::::J    aaaaaaa:::::ac::::::c     ccccccc k::::::k:::::k
-g:::::g     g:::::g o::::o     o::::oJJJJJJJ     J:::::J  aa::::::::::::ac:::::c              k:::::::::::k
-g:::::g     g:::::g o::::o     o::::oJ:::::J     J:::::J a::::aaaa::::::ac:::::c              k:::::::::::k
-g::::::g    g:::::g o::::o     o::::oJ::::::J   J::::::Ja::::a    a:::::ac::::::c     ccccccc k::::::k:::::k
-g:::::::ggggg:::::g o:::::ooooo:::::oJ:::::::JJJ:::::::Ja::::a    a:::::ac:::::::cccccc:::::ck::::::k k:::::k
- g::::::::::::::::g o:::::::::::::::o JJ:::::::::::::JJ a:::::aaaa::::::a c:::::::::::::::::ck::::::k  k:::::k
-  gg::::::::::::::g  oo:::::::::::oo    JJ:::::::::JJ    a::::::::::aa:::a cc:::::::::::::::ck::::::k   k:::::k
-    gggggggg::::::g    ooooooooooo        JJJJJJJJJ       aaaaaaaaaa  aaaa   cccccccccccccccckkkkkkkk    kkkkkkk
-            g:::::g
-gggggg      g:::::g
-g:::::gg   gg:::::g
- g::::::ggg:::::::g
-  gg:::::::::::::g
-    ggg::::::ggg
-       gggggg
-
-</pre>
+![since github is smarter than me, I am using an image](images/goJack.png)
 
 Copyright (c) Matthew Peters, 2023
 
