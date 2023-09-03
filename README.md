@@ -1,22 +1,22 @@
 # goJack #
 
 ```bash
-                                                    JJJJJJJJJJJ          AAA                  CCCCCCCCCCCCCKKKKKKKKK    KKKKKKK
-                                                    J:::::::::J         A:::A              CCC::::::::::::CK:::::::K    K:::::K
-                                                    J:::::::::J        A:::::A           CC:::::::::::::::CK:::::::K    K:::::K
-                                                    JJ:::::::JJ       A:::::::A         C:::::CCCCCCCC::::CK:::::::K   K::::::K
-   ggggggggg   ggggg   ooooooooooo                    J:::::J        A:::::::::A       C:::::C       CCCCCCKK::::::K  K:::::KKK
-  g:::::::::ggg::::g oo:::::::::::oo                  J:::::J       A:::::A:::::A     C:::::C                K:::::K K:::::K
- g:::::::::::::::::go:::::::::::::::o                 J:::::J      A:::::A A:::::A    C:::::C                K::::::K:::::K
-g::::::ggggg::::::ggo:::::ooooo:::::o                 J:::::j     A:::::A   A:::::A   C:::::C                K:::::::::::K
-g:::::g     g:::::g o::::o     o::::o                 J:::::J    A:::::A     A:::::A  C:::::C                K:::::::::::K
-g:::::g     g:::::g o::::o     o::::o     JJJJJJJ     J:::::J   A:::::AAAAAAAAA:::::A C:::::C                K::::::K:::::K
-g:::::g     g:::::g o::::o     o::::o     J:::::J     J:::::J  A:::::::::::::::::::::AC:::::C                K:::::K K:::::K
-g::::::g    g:::::g o::::o     o::::o     J::::::J   J::::::J A:::::AAAAAAAAAAAAA:::::AC:::::C       CCCCCCKK::::::K  K:::::KKK
-g:::::::ggggg:::::g o:::::ooooo:::::o     J:::::::JJJ:::::::JA:::::A             A:::::AC:::::CCCCCCCC::::CK:::::::K   K::::::K
- g::::::::::::::::g o:::::::::::::::o      JJ:::::::::::::JJA:::::A               A:::::ACC:::::::::::::::CK:::::::K    K:::::K
-  gg::::::::::::::g  oo:::::::::::oo         JJ:::::::::JJ A:::::A                 A:::::A CCC::::::::::::CK:::::::K    K:::::K
-    gggggggg::::::g    ooooooooooo             JJJJJJJJJ  AAAAAAA                   AAAAAAA   CCCCCCCCCCCCCKKKKKKKKK    KKKKKKK
+                                               JJJJJJJJJJJ                                   kkkkkkkk
+                                               J:::::::::J                                   k::::::k
+                                               J:::::::::J                                   k::::::k
+                                               JJ:::::::JJ                                   k::::::k
+   ggggggggg   ggggg   ooooooooooo               J:::::J  aaaaaaaaaaaaa      cccccccccccccccc k:::::k    kkkkkkk
+  g:::::::::ggg::::g oo:::::::::::oo             J:::::J  a::::::::::::a   cc:::::::::::::::c k:::::k   k:::::k
+ g:::::::::::::::::go:::::::::::::::o            J:::::J  aaaaaaaaa:::::a c:::::::::::::::::c k:::::k  k:::::k
+g::::::ggggg::::::ggo:::::ooooo:::::o            J:::::j           a::::ac:::::::cccccc:::::c k:::::k k:::::k
+g:::::g     g:::::g o::::o     o::::o            J:::::J    aaaaaaa:::::ac::::::c     ccccccc k::::::k:::::k
+g:::::g     g:::::g o::::o     o::::oJJJJJJJ     J:::::J  aa::::::::::::ac:::::c              k:::::::::::k
+g:::::g     g:::::g o::::o     o::::oJ:::::J     J:::::J a::::aaaa::::::ac:::::c              k:::::::::::k
+g::::::g    g:::::g o::::o     o::::oJ::::::J   J::::::Ja::::a    a:::::ac::::::c     ccccccc k::::::k:::::k
+g:::::::ggggg:::::g o:::::ooooo:::::oJ:::::::JJJ:::::::Ja::::a    a:::::ac:::::::cccccc:::::ck::::::k k:::::k
+ g::::::::::::::::g o:::::::::::::::o JJ:::::::::::::JJ a:::::aaaa::::::a c:::::::::::::::::ck::::::k  k:::::k
+  gg::::::::::::::g  oo:::::::::::oo    JJ:::::::::JJ    a::::::::::aa:::a cc:::::::::::::::ck::::::k   k:::::k
+    gggggggg::::::g    ooooooooooo        JJJJJJJJJ       aaaaaaaaaa  aaaa   cccccccccccccccckkkkkkkk    kkkkkkk
             g:::::g
 gggggg      g:::::g
 g:::::gg   gg:::::g
