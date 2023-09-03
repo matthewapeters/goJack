@@ -1,0 +1,19 @@
+#! /bin/bash
+
+CONTAINERCOUNT=$(docker images|grep graphviz|wc -l)
+
+if [[ $CONTAINERCOUNT -lt 1 ]];then
+    pushd graphviz
+    ./build
+    popd
+else
+    echo "Graphviz container already present"
+fi
+
+echo "launching graphviz container"
+
+docker run \
+--network=host \
+--mount type=bind,source="${PWD}",target=/app \
+-i -t \
+graphviz /app/diagram-game-flow

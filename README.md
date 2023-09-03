@@ -253,6 +253,21 @@ I would like to point out that the `game.Play(...string)` function is only 7 lin
 
 By using the state machine pattern, the code is well-organized and easy to read.
 
+### State Functions, Documentation, and Debugging ###
+
+By using consistent documentation for state functions, it is possible to generate visualization of application flow with a couple of simple scripts.
+ By executing `graph-game` you can generate an image of game showing states and state functions as a directed graph.
+
+#### graph-game ####
+
+The `graph-game` script will build a docker container with GraphViz installed.  It will then run the docker container, mount the project directory to it, and run the `diagram-game-flow` script from within the container.  This script will produce two files: `states.dot` and   `images/game-states.png`, which looks like this:
+
+![image showing game states and state functions in a directed graph](images/game-states.png)
+
+I used this visualization to identify errors in the documentation and errors in the state functions: disconnected states or state functions ought not exist, and when they show up, it is usually pretty easy to identify where the bug is.  I used rectangles to reflect state functions, and parallelagrams (commonly used for input and output in flow diagrams) to represent triggering and resulting states. The oval pops up from as a result of `DealARound` state's position in the `states.dot` file, and could be fixed with additional effort in the BASH script.
+
+The only convention needed is to ensure that the comments are consistent: `Trigger States:` and `Resulting States:` appear just before the function declaration and in the same order.  The scripts can be written in BASH, Python, JavaScript, Go, or any language you like.  The `.dot` file convention is actually pretty forgiving about duplicated entries.  I like using BASH for these scripts because BASH is the `de facto lingua-franca` for Linux-based DevOps teams - it shows no favorites, and also has some pretty amazing scripting tools to leverage!
+
 ## The gojack Command ##
 
 I have learned over time that the entry-point to an application is not necessarily the place to start writing code.  After years of refactoring and watching code move from module `./cmd` to `./pkg` or `./internal`, I found that putting off the "hello world" element of a project can encourage the use of TDD.  If we want to start realizing value, why not start with creating the parts of an application that are most likely to be reusable?  By doing this, the command file ends up with no more than 12 lines of code, six of which are white-space, imports and package header!  The command is nothing more than a list of game function calls - each of which can be tested thoroughly on their own.  This creates a nice clean line for white- and black-box testing, which sometimes aligns with organizational team structures.

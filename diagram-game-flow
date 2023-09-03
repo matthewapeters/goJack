@@ -1,0 +1,24 @@
+#! /bin/bash
+
+cd /app
+
+echo "digraph {">states.dot
+
+cat pkg/game/state_functions.go |grep -A2 "Trigger States:"| \
+    sed "s/() {//g"|sed "s/^func //g"|sed "s/^\\/\\/ [RT].*: //g"| \
+    sed "s/,//g"|egrep -v "\-\-" |tac | \
+while mapfile -t -n3 fnc && ((${#fnc[@]}));do
+#echo "function: " ${fnc[0]}
+#echo "out: " ${fnc[1]}
+#echo "in: " ${fnc[2]}
+#echo ""
+echo ${fnc[1]}" [shape=parallelogram]" >> states.dot
+echo ${fnc[2]}" [shape=parallelogram]" >> states.dot
+echo "${fnc[0]} [shape=box]" >> states.dot
+
+echo "{" ${fnc[2]} "} -> ${fnc[0]} -> {" ${fnc[1]} "}" >>states.dot
+done
+
+echo "}" >>states.dot
+
+cat states.dot | dot -Tpng > images/game-states.png
