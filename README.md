@@ -145,17 +145,6 @@ The resulting score is a soft 14.
 It is possible to win right out of the gate with the first two cards dealt.  Consider a player that receives a Jack and then an Ace.
 
 ![a directed graph showing possible scores given Jack and Ace](images/example2.png)
-```bash
-                J
-                ↓
-               [10]
-                ↓
-                A
-            ↓       ↓
-            [1]    [11]
-            ↓       ↓
-               NIL
-```
 
 Possible traversals are:
 
