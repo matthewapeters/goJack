@@ -2,10 +2,12 @@
 
 cd /app
 
+DOT="dot/state-diagram.dot"
+
 echo "">states
 echo "">relations
 echo "">state-funcs
-echo "">state-diagram.dot
+echo "">$DOT
 
 
 cat pkg/game/state_functions.go |grep -A2 "Trigger States:"| \
@@ -33,17 +35,17 @@ digraph {
     labelloc=t
     fontsize=20
     label="'"'"goJack State Machine Game Flow"'"'"
-    rankdir="'"TB"'"" >state-diagram.dot
+    rankdir="'"TB"'"" >$DOT
 
 
 # de-dupe the states into the .dot file
 cat states|sed "s/ /\n/g"|egrep -v "^$"|sed "s/^/    /g"|sed "s/$/ \\[shape=\\\"parallelogram\\\"\\]/g"|sort -ur>>state-diagram.dot
-cat state-funcs >> state-diagram.dot
-cat relations >> state-diagram.dot
-echo "}" >>state-diagram.dot
+cat state-funcs >> $DOT
+cat relations >> $DOT
+echo "}" >>$DOT
 
 # Generate the .png image
-cat state-diagram.dot | dot -Tpng > images/game-states.png
+cat $DOT | dot -Tpng > images/game-states.png
 
 # Cleanup
 rm {state-funcs,states,relations}
