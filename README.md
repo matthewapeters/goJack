@@ -1,6 +1,7 @@
 # goJack #
 
-```bash
+<pre style="font-size:8px;font-family:monospace">
+
                                                JJJJJJJJJJJ                                   kkkkkkkk
                                                J:::::::::J                                   k::::::k
                                                J:::::::::J                                   k::::::k
@@ -25,7 +26,7 @@ g:::::gg   gg:::::g
     ggg::::::ggg
        gggggg
 
-```
+</pre>
 
 Copyright (c) Matthew Peters, 2023
 
