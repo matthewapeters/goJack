@@ -8,112 +8,36 @@ import (
 	"github.com/matthewapeters/gojack/pkg/card"
 )
 
-/*
-	func aCardWithSuitOfClubsAndAFaceValueOfFour() (context.Context, error) {
-		ctx := context.WithValue(context.Background(), "CARD", card.NewCard(card.Clubs, card.Four))
-		return ctx, nil
-	}
+func aCardWithSuitOfAndAFaceValueOf(suit, facevalue string) (ctx context.Context, err error) {
+	var s card.Suit
+	var fv card.FaceValue
+	suits := map[string]card.Suit{
+		"Hearts":   card.Hearts,
+		"Spades":   card.Spades,
+		"Diamonds": card.Diamonds,
+		"Clubs":    card.Clubs}
+	facevalues := map[string]card.FaceValue{"Two": card.Two, "Three": card.Three,
+		"Four": card.Four, "Five": card.Five, "Six": card.Six,
+		"Seven": card.Seven, "Eight": card.Eight, "Nice": card.Nine,
+		"Ten": card.Ten, "Jack": card.Jack, "Queen": card.Queen, "King": card.King, "Ace": card.Ace}
 
-	func aCardWithSuitOfHeartsAndAFaceValueOfAce() (context.Context, error) {
-		ctx := context.WithValue(context.Background(), "CARD", card.NewCard(card.Hearts, card.Ace))
-		return ctx, nil
-	}
-
-	func aCardWithSuitOfSpadesAndAFaceValueOfThree() (context.Context, error) {
-		ctx := context.WithValue(context.Background(), "CARD", card.NewCard(card.Spades, card.Three))
-		return ctx, nil
-	}
-
-	func itsStringValueWillBeAceOfHearts(ctx context.Context) error {
-		c := ctx.Value("CARD").(card.Card)
-		expected := "Ace of Hearts"
-		if c.String() != expected {
-			return fmt.Errorf("EXPECTED %s got %s", expected, c.String())
-		}
-		return nil
-	}
-
-	func itsStringValueWillBeFourOfClubs(ctx context.Context) error {
-		c := ctx.Value("CARD").(card.Card)
-		expected := "Four of Clubs"
-		if c.String() != expected {
-			return fmt.Errorf("EXPECTED %s got %s", expected, c.String())
-		}
-		return nil
-
+	s = suits[suit]
+	fv = facevalues[facevalue]
+	crd := card.NewCard(s, fv)
+	ctx = context.WithValue(context.Background(), "Card", crd)
+	return
 }
 
-	func itsStringValueWillBeThreeOfSpades(ctx context.Context) error {
-		c := ctx.Value("CARD").(card.Card)
-		expected := "Three of Spades"
-		if c.String() != expected {
-			return fmt.Errorf("EXPECTED %s got %s", expected, c.String())
-		}
-		return nil
-
-}
-
-	func theCardIsStringified(ctx context.Context) error {
-		return nil
+func itsStringValueWillBe(ctx context.Context, expected string) (err error) {
+	card := ctx.Value("Card").(*card.Card)
+	found := card.String()
+	if found != expected {
+		err = fmt.Errorf("expected %s but got %s", expected, found)
 	}
-
-	func InitializeScenario(ctx *godog.ScenarioContext) {
-		ctx.Step(`^the card is stringified$`, theCardIsStringified)
-		ctx.Step(`^a card with Suit of Clubs and a face value of Four$`, aCardWithSuitOfClubsAndAFaceValueOfFour)
-		ctx.Step(`^a card with Suit of Hearts and a face value of Ace$`, aCardWithSuitOfHeartsAndAFaceValueOfAce)
-		ctx.Step(`^a card with Suit of Spades and a face value of Three$`, aCardWithSuitOfSpadesAndAFaceValueOfThree)
-		ctx.Step(`^its string value will be Ace of Hearts$`, itsStringValueWillBeAceOfHearts)
-		ctx.Step(`^its string value will be Four of Clubs$`, itsStringValueWillBeFourOfClubs)
-		ctx.Step(`^its string value will be Three of Spades$`, itsStringValueWillBeThreeOfSpades)
-	}
-*/
-func aCardWithSuitOfClubsAndAFaceValueOfFour() (context.Context, error) {
-	ctx := context.WithValue(context.Background(), "CARD", card.NewCard(card.Clubs, card.Four))
-	return ctx, nil
-}
-
-func aCardWithSuitOfHeartsAndAFaceValueOfAce() (context.Context, error) {
-	ctx := context.WithValue(context.Background(), "CARD", card.NewCard(card.Hearts, card.Ace))
-	return ctx, nil
-}
-
-func aCardWithSuitOfSpadesAndAFaceValueOfThree() (context.Context, error) {
-	ctx := context.WithValue(context.Background(), "CARD", card.NewCard(card.Spades, card.Three))
-	return ctx, nil
-}
-
-func itsStringValueWillBeAce(ctx context.Context) error {
-	c := ctx.Value("CARD").(*card.Card)
-	expected := fmt.Sprintf("%s%s", card.Hearts, card.Ace)
-	if c.String() != expected {
-		return fmt.Errorf("EXPECTED %s got %s", expected, c.String())
-	}
-	return nil
-}
-
-func itsStringValueWillBeFour(ctx context.Context) error {
-	c := ctx.Value("CARD").(*card.Card)
-	expected := fmt.Sprintf("%s%s", card.Clubs, card.Four)
-	if c.String() != expected {
-		return fmt.Errorf("EXPECTED %s got %s", expected, c.String())
-	}
-	return nil
-}
-
-func itsStringValueWillBeThree(ctx context.Context) error {
-	c := ctx.Value("CARD").(*card.Card)
-	expected := fmt.Sprintf("%s%s", card.Spades, card.Three)
-	if c.String() != expected {
-		return fmt.Errorf("EXPECTED %s got %s", expected, c.String())
-	}
-	return nil
+	return
 }
 
 func InitializeScenario(ctx *godog.ScenarioContext) {
-	ctx.Step(`^a card with Suit of Clubs and a face value of Four$`, aCardWithSuitOfClubsAndAFaceValueOfFour)
-	ctx.Step(`^a card with Suit of Hearts and a face value of Ace$`, aCardWithSuitOfHeartsAndAFaceValueOfAce)
-	ctx.Step(`^a card with Suit of Spades and a face value of Three$`, aCardWithSuitOfSpadesAndAFaceValueOfThree)
-	ctx.Step(`^its string value will be ♥ Ace$`, itsStringValueWillBeAce)
-	ctx.Step(`^its string value will be ♣ Four$`, itsStringValueWillBeFour)
-	ctx.Step(`^its string value will be ♠ Three$`, itsStringValueWillBeThree)
+	ctx.Step(`^a card with Suit of "([^"]*)" and a face value of "([^"]*)"$`, aCardWithSuitOfAndAFaceValueOf)
+	ctx.Step(`^its string value will be "([^"]*)""$`, itsStringValueWillBe)
 }
