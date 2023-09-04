@@ -1,3 +1,7 @@
+// Package hand implements the cards held by a player.
+// It provides functions to support rendering cards in game play,
+// as well as adding and removing cards, and counting the value of the
+// hand.
 package hand
 
 import (
@@ -8,15 +12,21 @@ import (
 )
 
 const (
+	// This is the maximum value allowed by a hand.  If a possible hand
+	// value exceeds this, it is thrown out.
 	MaxValue = 21
 )
 
+// a slice of card.Card pointers.
 type Cards []*card.Card
 
+// Simplifies adding appending one or more cards to a Cards
 func (crds *Cards) Append(v ...*card.Card) {
 	*crds = append(*crds, v...)
 }
 
+// Possible Value of a hand - as the same hand can
+// add up to different totals when Aces are present.
 type PossibleValue struct {
 	Value int
 }
@@ -25,15 +35,20 @@ func (pv *PossibleValue) String() string {
 	return fmt.Sprintf("%d", pv.Value)
 }
 
+// The collection of possible values from a hand
 type PossibleValues struct {
 	Values []*PossibleValue
 	Cards  *Cards
 }
+
+// Structure supporting the hand.  TheCards is a pointer to a slice of cards.  TheScore is the collection of
+// possible scores computed after the last card was received (see [Takes])
 type Hand struct {
 	TheScore []int
 	TheCards *Cards
 }
 
+// Instantiates a new Hand
 func NewHand() (h *Hand) {
 	h = &Hand{
 		TheCards: &Cards{},
@@ -41,6 +56,9 @@ func NewHand() (h *Hand) {
 	}
 	return
 }
+
+// Receives a new card and appends it to TheCards.
+// The values of the hand are re-computed.
 func (h *Hand) Takes(c *card.Card) {
 	h.TheCards.Append(c)
 	scores := []int{}
@@ -50,6 +68,8 @@ func (h *Hand) Takes(c *card.Card) {
 	h.TheScore = scores
 }
 
+// Internal function for generating the various possible values of a hand.
+// This function represents the recursive logic used in computing multiple scores
 func (posVals *PossibleValues) evaluatePossibleValues(cardIndex int, p *PossibleValue) {
 	c := (*posVals.Cards)[cardIndex]
 	// If the card is face-down, the facevalue is not computed - just move on to the next card
@@ -116,6 +136,7 @@ func (posVals *PossibleValues) evaluatePossibleValues(cardIndex int, p *Possible
 	}
 }
 
+// entry point for evaluating the Hand's possible values.
 func (h *Hand) values() (values *PossibleValues) {
 	p := &PossibleValue{}
 	values = &PossibleValues{Values: []*PossibleValue{p}, Cards: h.TheCards}
@@ -140,6 +161,8 @@ func (h *Hand) GiveCard(cardIndex int) (c *card.Card) {
 	return
 }
 
+// Produces the 5-line string representing the hand.  Face-down cards have a
+// hashed pattern representing the back of the card.
 func (h *Hand) String() (s string) {
 	s = "Hand:\n"
 	s0, s1, s2, s3, s4 := "", "", "", "", ""
@@ -167,6 +190,9 @@ func (h *Hand) String() (s string) {
 	return
 }
 
+// Edge condition for Dealer's hand.  The first card is dealt face-down, so the
+// game assumes a value of 10, but the actual value is unknown until this function is called.
+// This function changes the Card.FaceDown to false, and re-computes the Hand's possible values.
 func (h *Hand) RevealFirstCard() {
 	(*h.TheCards)[0].FaceDown = false
 	scores := []int{}
