@@ -1,3 +1,4 @@
+// goJack is an implementation of multi-player Black Jack or Twentyone
 package main
 
 import (
