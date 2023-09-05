@@ -48,11 +48,11 @@ func dealNewHand() {
 		for _, player := range theGame.Players {
 			player.Hand.Takes(theGame.Dealer.Deck.Cards.GiveCard(1))
 		}
-		theGame.Dealer.Player.Hand.Takes(theGame.Dealer.Deck.Cards.GiveCard(1))
-		// The first dealer's card is dealt face-down
-		if i == 0 {
+		switch i {
+		case 0:
+			// The first dealer's card is dealt face-down
 			theGame.Dealer.Player.Hand.Takes(theGame.Dealer.Deck.Cards.GiveCard(1).FacingDown())
-		} else {
+		default:
 			theGame.Dealer.Player.Hand.Takes(theGame.Dealer.Deck.Cards.GiveCard(1).FacingUp())
 		}
 	}
@@ -72,7 +72,7 @@ func dealToPlayer() {
 		// Player went bust on last card, play goes to next player or the Dealer
 		fmt.Printf("%s Goes Bust!\n", p.Name)
 		theGame.CurrentPlayerID += 1
-		if theGame.CurrentPlayerID == len(theGame.Players) {
+		if theGame.CurrentPlayerID >= len(theGame.Players) {
 			theGame.State = PlayerGoesBust
 		}
 		time.Sleep(2 * time.Second)
@@ -132,11 +132,15 @@ func dealToDealer() {
 // after dealing a round, some of the players may have busted.
 // Determine if they have all busted (which means the dealer wins and has nothing to prove)
 // Trigger States: PlayerGoesBust
-// Resulting States: DealARound, AllPlayersGoBust
+// Resulting States: DealARound, DealToDealer, AllPlayersGoBust
 func determineIfAllPlayersBusted() {
 	if theGame.AllPlayersBusted() {
 		theGame.State = AllPlayersGoBust
 	} else {
+		if theGame.CurrentPlayerID == len(theGame.Players) {
+			theGame.State = DealToDealer
+			return
+		}
 		// this occurs only for multi-player future variant
 		theGame.State = DealARound
 	}

@@ -39,7 +39,7 @@ digraph {
     { DealtARound } -> determineHandResults -> { HandIsOver }
     { AllPlayersGoBust } -> dealerWins -> { HandIsOver }
     { DealerGoesBust } -> dealerGoesBust -> { HandIsOver }
-    { PlayerGoesBust } -> determineIfAllPlayersBusted -> { DealARound AllPlayersGoBust }
+    { PlayerGoesBust } -> determineIfAllPlayersBusted -> { DealARound DealToDealer AllPlayersGoBust }
     { DealToDealer } -> dealToDealer -> { DealToDealer DealtARound DealerGoesBust }
     { DealARound NewHandDealt } -> dealToPlayer -> { DealARound PlayerGoesBust DealToDealer }
     { NewHand } -> dealNewHand -> { NewHandDealt }
