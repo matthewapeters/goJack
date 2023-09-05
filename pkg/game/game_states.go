@@ -16,18 +16,11 @@ const (
 	PlayerGoesBust
 	AllPlayersGoBust
 	DealerGoesBust
-	AllPlayersStay
 	DetermineResults
 	HandIsOver
 	PlayerWantsToPlayAgain
 	PlayerWantsToQuit
 	GameOver
-
-	PlayerChoiceHit = Choice(iota)
-	DealerChoiceHit
-	PlayerChoiceStay
-	DealerChoicestay
-	PlayerChoiceSplit
 )
 
 var (
