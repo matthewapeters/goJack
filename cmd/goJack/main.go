@@ -8,6 +8,5 @@ import (
 func main() {
 	game.ClearScreen()
 	game.TitleArt()
-	game.ClearScreen()
 	game.Play(game.RequestPlayerNames()...)
 }

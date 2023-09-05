@@ -51,15 +51,17 @@ func dealNewHand() {
 		theGame.Dealer.Player.Hand.Takes(theGame.Dealer.Deck.Cards.GiveCard(1))
 		// The first dealer's card is dealt face-down
 		if i == 0 {
-			(*theGame.Dealer.Player.Hand.TheCards)[0].FaceDown = true
+			theGame.Dealer.Player.Hand.Takes(theGame.Dealer.Deck.Cards.GiveCard(1).FacingDown())
+		} else {
+			theGame.Dealer.Player.Hand.Takes(theGame.Dealer.Deck.Cards.GiveCard(1).FacingUp())
 		}
 	}
 	theGame.State = NewHandDealt
 }
 
 // dealToPlayer
-// Trigger States: DealARound, DealToDealer, NewHandDealt
-// Resulting States: DealARound, PlayerGoesBust
+// Trigger States: DealARound, NewHandDealt
+// Resulting States: DealARound, PlayerGoesBust, DealToDealer
 func dealToPlayer() {
 	p := theGame.Players[theGame.CurrentPlayerID]
 	choiceMade := false
@@ -100,6 +102,13 @@ func dealToPlayer() {
 // Trigger States: DealToDealer
 // Resulting States: DealToDealer, DealtARound, DealerGoesBust
 func dealToDealer() {
+	theGame.Dealer.RevealFirstCard()
+	theGame.ShowCards()
+	if theGame.Dealer.GoesBust() {
+		theGame.Results += "Dealer Goes Bust!\n"
+		theGame.State = DealerGoesBust
+		return
+	}
 	theGame.ShowCards()
 
 	if theGame.Dealer.GoesBust() {
@@ -107,26 +116,15 @@ func dealToDealer() {
 		theGame.State = DealerGoesBust
 		return
 	}
-	if theGame.Dealer.Player.Scores()[player.MAX] < 7 {
+	if theGame.Dealer.Player.Scores()[player.MAX] < 17 {
 		fmt.Printf("Dealer takes a card.  ")
 		theGame.Dealer.Player.Hand.Takes(theGame.Dealer.Deck.Cards.GiveCard(1))
 		time.Sleep(2 * time.Second)
 	} else {
-		fmt.Printf("Dealer Shows %d - will not hit over presumed 17!\n", theGame.Dealer.Player.Scores()[player.MAX])
+		fmt.Printf("Dealer Shows %d - will not hit over 17!\n", theGame.Dealer.Player.Scores()[player.MAX])
 		theGame.Dealer.Player.Choice = player.STAY
 		time.Sleep(2 * time.Second)
 		theGame.State = DealtARound
-	}
-}
-
-// deternubeIfAllPlayersStay
-// Trigger States: DealtARound
-// Resulting States: AllPlayersStay
-func determineIfAllPlayersStay() {
-	if theGame.AllStay() {
-		theGame.State = AllPlayersStay
-		fmt.Println("All Players Have Chosen to Stay")
-		time.Sleep(3 * time.Second)
 	}
 }
 
@@ -142,20 +140,6 @@ func determineIfAllPlayersBusted() {
 		// this occurs only for multi-player future variant
 		theGame.State = DealARound
 	}
-}
-
-// dealerRevealsCard
-// Trigger States: AllPlayersStay
-// ResultingStates: DetermineResults, DealerGoesBust
-func dealerRevealsCard() {
-	theGame.Dealer.RevealFirstCard()
-	theGame.ShowCards()
-	if theGame.Dealer.GoesBust() {
-		theGame.Results += "Dealer Goes Bust!\n"
-		theGame.State = DealerGoesBust
-		return
-	}
-	theGame.State = DetermineResults
 }
 
 // dealerGoesBust
@@ -179,7 +163,7 @@ func dealerWins() {
 
 // determineResults
 // contains call to theGameShowCards()
-// Trigger States: DetermineResults
+// Trigger States: DealtARound
 // Resulting States: HandIsOver
 func determineHandResults() {
 	// Evaluate final scores

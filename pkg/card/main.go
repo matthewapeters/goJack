@@ -89,6 +89,20 @@ func (c *Card) BaseValue() (v int) {
 	return
 }
 
+// Turns the card face down
+func (c *Card) FacingDown() (crd *Card) {
+	crd = c
+	c.FaceDown = true
+	return
+}
+
+// Turns the card face up
+func (c *Card) FacingUp() (crd *Card) {
+	crd = c
+	c.FaceDown = false
+	return
+}
+
 // Returns the suit's symbol
 func (s Suit) String() string {
 	return string(s.SuitSymbol)
