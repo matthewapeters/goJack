@@ -10,7 +10,10 @@ digraph {
     fontsize=20
     label="goJack State Machine Game Flow"
     rankdir="TB"
+    PromptPlayer [shape="parallelogram"]
     PlayerWantsToPlayAgain [shape="parallelogram"]
+    PlayerTakesCard [shape="parallelogram"]
+    PlayerStays [shape="parallelogram"]
     PlayerGoesBust [shape="parallelogram"]
     NewHandDealt [shape="parallelogram"]
     NewHand [shape="parallelogram"]
@@ -30,6 +33,9 @@ digraph {
     dealerGoesBust [shape="box"]
     determineIfAllPlayersBusted [shape="box"]
     dealToDealer [shape="box"]
+    nextPlayersTurn [shape="box"]
+    playerTakesCard [shape="box"]
+    playerChooses [shape="box"]
     dealToPlayer [shape="box"]
     dealNewHand [shape="box"]
     startNewHand [shape="box"]
@@ -41,7 +47,10 @@ digraph {
     { DealerGoesBust } -> dealerGoesBust -> { HandIsOver }
     { PlayerGoesBust } -> determineIfAllPlayersBusted -> { DealARound DealToDealer AllPlayersGoBust }
     { DealToDealer } -> dealToDealer -> { DealToDealer DealtARound DealerGoesBust }
-    { DealARound NewHandDealt } -> dealToPlayer -> { DealARound PlayerGoesBust DealToDealer }
+    { PlayerStays } -> nextPlayersTurn -> { DealARound DealToDealer }
+    { PlayerTakesCard } -> playerTakesCard -> { DealARound }
+    { PromptPlayer } -> playerChooses -> { PlayerTakesCard PlayerStays }
+    { DealARound NewHandDealt } -> dealToPlayer -> { PlayerGoesBust PromptPlayer }
     { NewHand } -> dealNewHand -> { NewHandDealt }
     { Initialized PlayerWantsToPlayAgain } -> startNewHand -> { NewHand }
     { NewGame } -> initializeGame -> { Initialized }

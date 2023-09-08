@@ -13,6 +13,9 @@ const (
 	DealARound
 	DealtARound
 	DealToDealer
+	PromptPlayer
+	PlayerStays
+	PlayerTakesCard
 	PlayerGoesBust
 	AllPlayersGoBust
 	DealerGoesBust
@@ -31,6 +34,9 @@ var (
 		NewHandDealt:           dealToPlayer,
 		DealARound:             dealToPlayer,
 		DealToDealer:           dealToDealer,
+		PromptPlayer:           playerChooses,
+		PlayerStays:            nextPlayersTurn,
+		PlayerTakesCard:        playerTakesCard,
 		DealtARound:            determineHandResults,
 		PlayerGoesBust:         determineIfAllPlayersBusted,
 		AllPlayersGoBust:       dealerWins,

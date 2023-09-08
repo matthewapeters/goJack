@@ -61,10 +61,9 @@ func dealNewHand() {
 
 // dealToPlayer
 // Trigger States: DealARound, NewHandDealt
-// Resulting States: DealARound, PlayerGoesBust, DealToDealer
+// Resulting States: PlayerGoesBust, PromptPlayer
 func dealToPlayer() {
 	p := theGame.Players[theGame.CurrentPlayerID]
-	choiceMade := false
 
 	theGame.ShowCards()
 
@@ -79,6 +78,16 @@ func dealToPlayer() {
 		return
 	}
 
+	theGame.State = PromptPlayer
+}
+
+// playerChooses
+// Trigger States: PromptPlayer
+// Resulting States: PlayerTakesCard, PlayerStays
+func playerChooses() {
+	p := theGame.Players[theGame.CurrentPlayerID]
+
+	choiceMade := false
 	// What does the player want to do?
 	for !choiceMade && p.Choice == player.HIT {
 		fmt.Printf("%s: (H)it or (S)tay? ", p.Name)
@@ -86,16 +95,32 @@ func dealToPlayer() {
 		fmt.Scanln(&choice)
 		choiceMade = p.MakeChoice(choice)
 	}
-
 	if p.Choice == player.HIT {
-		p.Hand.Takes(theGame.Dealer.Deck.Cards.GiveCard(1))
+		theGame.State = PlayerTakesCard
 	} else {
-		// Player choses to Stay, play goes to next player or the Dealer
-		theGame.CurrentPlayerID += 1
-		if theGame.CurrentPlayerID == len(theGame.Players) {
-			theGame.State = DealToDealer
-		}
+		theGame.State = PlayerStays
 	}
+}
+
+// playerTakesCard
+// Trigger States: PlayerTakesCard
+// Resulting States: DealARound
+func playerTakesCard() {
+	p := theGame.Players[theGame.CurrentPlayerID]
+	p.Hand.Takes(theGame.Dealer.Deck.Cards.GiveCard(1))
+	theGame.State = DealARound
+}
+
+// playerStays
+// Trigger States: PlayerStays
+// Resulting States: DealARound, DealToDealer
+func nextPlayersTurn() {
+	// Player choses to Stay, play goes to next player or the Dealer
+	theGame.CurrentPlayerID += 1
+	if theGame.CurrentPlayerID == len(theGame.Players) {
+		theGame.State = DealToDealer
+	}
+	theGame.State = DealARound
 }
 
 // dealToDealer
