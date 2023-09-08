@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/cucumber/godog"
 	"github.com/matthewapeters/gojack/pkg/card"
@@ -19,6 +20,7 @@ func aNewGameOfGoJack() (ctx context.Context, err error) {
 		Players: player.Players{},
 		Scores:  map[*player.Player]int{},
 	}
+	theGame.DisplayInterval = (0 * time.Second)
 	ctx = context.WithValue(context.Background(), "GAME", theGame)
 	return
 }
@@ -84,7 +86,87 @@ func theDeckWillHaveRemainingCardsInTheDeck(ctx context.Context, expectedNbrCard
 	return
 }
 
+func theDealerHasAHandWithTheCards(ctx context.Context, cards string) (ctxOut context.Context, err error) {
+	ctxOut = ctx
+	g := ctx.Value("GAME").(*game)
+
+	for _, c := range strings.Split(cards, ",") {
+		var crd *card.Card
+
+		switch c {
+		case "2s":
+			crd = card.NewCard(card.Spades, card.Two)
+			crd.FacingDown()
+		case "2S":
+			crd = card.NewCard(card.Spades, card.Two)
+		case "10s":
+			crd = card.NewCard(card.Spades, card.Ten)
+			crd.FacingDown()
+		case "10S":
+			crd = card.NewCard(card.Spades, card.Ten)
+		case "Ah":
+			crd = card.NewCard(card.Hearts, card.Ace)
+			crd.FacingDown()
+		case "AH":
+			crd = card.NewCard(card.Hearts, card.Ace)
+
+		default:
+			err = fmt.Errorf("cannot handle card %s", c)
+			return
+
+		}
+		g.Dealer.Player.Hand.Takes(crd)
+	}
+
+	return
+}
+
+func theDealerMustDecideToHitOrStay(ctx context.Context) (err error) {
+	theGame = ctx.Value("GAME").(*game)
+	theGame.DisplayInterval = (0 * time.Second)
+	theGame.SupressDisplay = true
+	dealToDealer()
+	return
+}
+
+func theGameStateIs(ctx context.Context, stateName string) (err error) {
+	g := ctx.Value("GAME").(*game)
+	switch stateName {
+	case "DealToDealer":
+		g.State = DealToDealer
+	default:
+		err = fmt.Errorf("state %s not handled", stateName)
+	}
+	return
+}
+
+func theResultingGameStateWillBe(ctx context.Context, stateName string) (err error) {
+	g := ctx.Value("GAME").(*game)
+	foundState := g.State
+	var expectedState GameState
+
+	switch stateName {
+	case "DealToDealer":
+		expectedState = DealToDealer
+	case "DealerGoesBust":
+		expectedState = DealerGoesBust
+	case "DealtARound":
+		expectedState = DealtARound
+	default:
+		err = fmt.Errorf("state %s not handled", stateName)
+	}
+	if foundState != expectedState {
+		err = fmt.Errorf("expected state of %s, but found state is %d", stateName, foundState)
+	}
+
+	return
+}
+
 func InitializeScenario(ctx *godog.ScenarioContext) {
+	ctx.Step(`^the Dealer has a hand with the cards "([^"]*)"$`, theDealerHasAHandWithTheCards)
+	ctx.Step(`^the Dealer must decide to hit or Stay$`, theDealerMustDecideToHitOrStay)
+	ctx.Step(`^the game State is "([^"]*)"$`, theGameStateIs)
+	ctx.Step(`^the resulting game state will be "([^"]*)"$`, theResultingGameStateWillBe)
 	ctx.Step(`^a new game of goJack$`, aNewGameOfGoJack)
 	ctx.Step(`^a player list of "([^"]*)"$`, aPlayerListOf)
 	ctx.Step(`^all of the player cards will be facing up$`, allOfThePlayerCardsWillBeFacingUp)

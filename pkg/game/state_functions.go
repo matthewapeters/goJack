@@ -75,7 +75,7 @@ func dealToPlayer() {
 		if theGame.CurrentPlayerID >= len(theGame.Players) {
 			theGame.State = PlayerGoesBust
 		}
-		time.Sleep(2 * time.Second)
+		time.Sleep(theGame.DisplayInterval)
 		return
 	}
 
@@ -117,13 +117,17 @@ func dealToDealer() {
 		return
 	}
 	if theGame.Dealer.Player.Scores()[player.MAX] < 17 {
-		fmt.Printf("Dealer takes a card.  ")
+		if !theGame.SupressDisplay {
+			fmt.Printf("Dealer takes a card.  ")
+		}
 		theGame.Dealer.Player.Hand.Takes(theGame.Dealer.Deck.Cards.GiveCard(1))
-		time.Sleep(2 * time.Second)
+		time.Sleep(theGame.DisplayInterval)
 	} else {
-		fmt.Printf("Dealer Shows %d - will not hit over 17!\n", theGame.Dealer.Player.Scores()[player.MAX])
+		if !theGame.SupressDisplay {
+			fmt.Printf("Dealer Shows %d - will not hit over 17!\n", theGame.Dealer.Player.Scores()[player.MAX])
+		}
 		theGame.Dealer.Player.Choice = player.STAY
-		time.Sleep(2 * time.Second)
+		time.Sleep(theGame.DisplayInterval)
 		theGame.State = DealtARound
 	}
 }

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/matthewapeters/gojack/pkg/dealer"
 	"github.com/matthewapeters/gojack/pkg/player"
@@ -12,9 +13,10 @@ import (
 
 var (
 	theGame = &game{
-		Dealer:  dealer.NewDealer(),
-		Players: player.Players{},
-		Scores:  map[*player.Player]int{},
+		Dealer:          dealer.NewDealer(),
+		Players:         player.Players{},
+		Scores:          map[*player.Player]int{},
+		DisplayInterval: 2 * time.Second,
 	}
 )
 
@@ -26,6 +28,8 @@ type game struct {
 	Names           []string
 	State           GameState
 	CurrentPlayerID int
+	DisplayInterval time.Duration
+	SupressDisplay  bool
 }
 
 func (g *game) AllStay() bool {

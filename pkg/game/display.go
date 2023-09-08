@@ -46,6 +46,9 @@ g:::::gg   gg:::::g
 }
 
 func (g *game) ShowCards() {
+	if g.SupressDisplay {
+		return
+	}
 	ClearScreen()
 
 	//Dealer shows Hand
