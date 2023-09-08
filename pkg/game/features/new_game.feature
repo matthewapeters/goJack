@@ -14,6 +14,8 @@ Examples:
 | Matt Chris    |                    46 |
 | Matt Chris v  |                    44 |
 
+
+# test dealToDealer
 Scenario Outline: Dealer Hit Or Stay
 Given a new game of goJack
 And the Dealer has a hand with the cards "<DealersCards>"
@@ -29,3 +31,19 @@ Examples:
 | 10S,10S,2S                | DealToDealer        | DealerGoesBust      |
 | 10S,10S                   | DealToDealer        | DealtARound         |
 | AH,10S                    | DealToDealer        | DealtARound         |
+
+# Test dealToPlayer logic
+Scenario Outline: Player Hits on Various Cards
+Given a new game of goJack
+And a player list of "<Players>"
+And the player has a hand with the cards "<PlayersCards>"
+And it is the player's turn
+When the player chooses to Hit
+And the dealer deals a "<DealtCard>" to the player
+And the player's hand is counted
+Then the game state will be "<ExpectedState>"
+
+Examples:
+| Players | PlayersCards | DealtCard | ExpectedState  |
+| matt    | 2S,10H       | AH        | PromptPlayer   |
+| matt    | 10H,8S       | 4C        | PlayerGoesBust |

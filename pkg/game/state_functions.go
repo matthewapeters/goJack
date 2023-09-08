@@ -69,7 +69,9 @@ func dealToPlayer() {
 
 	if p.GoesBust() {
 		// Player went bust on last card, play goes to next player or the Dealer
-		fmt.Printf("%s Goes Bust!\n", p.Name)
+		if !theGame.SupressDisplay {
+			fmt.Printf("%s Goes Bust!\n", p.Name)
+		}
 		theGame.CurrentPlayerID += 1
 		if theGame.CurrentPlayerID >= len(theGame.Players) {
 			theGame.State = PlayerGoesBust
