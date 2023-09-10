@@ -1,31 +1,38 @@
 package player
 
 import (
+	"strings"
+
 	"github.com/matthewapeters/gojack/pkg/hand"
+	"github.com/matthewapeters/gojack/pkg/purse"
 )
 
 type Choice string
 
 const (
-	MIN  = "MIN"
-	MAX  = "MAX"
-	HIT  = Choice("HIT")
-	STAY = Choice("STAY")
+	MIN   = "MIN"
+	MAX   = "MAX"
+	HIT   = Choice("HIT")
+	STAY  = Choice("STAY")
+	SPLIT = Choice("SPLIT")
 )
 
 type Player struct {
 	Name  string
+	Hands []*hand.Hand
 	Hand  *hand.Hand
-	Purse int
 	Choice
+	Purse purse.Purse
 }
 
 func NewPlayer(name string) *Player {
+	h := hand.NewHand()
 	return &Player{
 		Name:   name,
-		Hand:   hand.NewHand(),
-		Purse:  1000,
+		Hands:  []*hand.Hand{h},
+		Hand:   h,
 		Choice: HIT,
+		Purse:  purse.NewPurse(1000),
 	}
 }
 
@@ -42,6 +49,7 @@ func (p *Player) HitsTwentyOne() bool {
 
 func (p *Player) NewGame() {
 	p.Hand = hand.NewHand()
+	p.Hands = []*hand.Hand{p.Hand}
 	p.Choice = HIT
 }
 
@@ -59,21 +67,42 @@ func (p *Player) Scores() (scores map[string]int) {
 }
 
 func (p *Player) MakeChoice(input string) bool {
-	switch string(input[0]) {
+	switch strings.ToUpper(string(input[0])) {
 	case "S":
-		p.Choice = STAY
-		return true
-	case "s":
 		p.Choice = STAY
 		return true
 	case "H":
 		p.Choice = HIT
 		return true
-	case "h":
-		p.Choice = HIT
+	case "P":
+		p.Choice = SPLIT
 		return true
 	}
 	return false
+}
+
+func (p *Player) HasMoreHands() (answer bool) {
+	answer = p.HandIndex() < len(p.Hands)-1
+
+	return
+}
+
+func (p *Player) NextHand() {
+	for i := 0; i < len(p.Hands)-1; i++ {
+		if p.Hand == p.Hands[i] {
+			p.Hand = p.Hands[i+1]
+			return
+		}
+	}
+}
+
+func (p *Player) HandIndex() int {
+	for i := 0; i < len(p.Hands); i++ {
+		if p.Hand == p.Hands[i] {
+			return i
+		}
+	}
+	return -1
 }
 
 type Players []*Player

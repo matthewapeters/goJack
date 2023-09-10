@@ -113,6 +113,13 @@ func playerTakesCard() {
 	theGame.State = DealToPlayer
 }
 
+// playerSplitsHand
+// Trigger States: PlayerSplitsHand
+// Resulting States: DealToPlayer
+func playerSplitsHand() {
+
+}
+
 // playerStays
 // Trigger States: PlayerStays
 // Resulting States: DealToPlayer, DealToDealer

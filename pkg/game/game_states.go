@@ -15,6 +15,7 @@ const (
 	PromptPlayer
 	PlayerStays
 	PlayerTakesCard
+	PlayerSplitsHand
 	PlayerGoesBust
 	AllPlayersGoBust
 	DealerGoesBust
@@ -45,6 +46,8 @@ func (gs GameState) String() string {
 		return "PlayerStays"
 	case PlayerTakesCard:
 		return "PlayerTakesCard"
+	case PlayerSplitsHand:
+		return "PlayerSplitsHand"
 	case PlayerGoesBust:
 		return "PlayerGoesBust"
 	case AllPlayersGoBust:
@@ -75,6 +78,7 @@ var (
 		PromptPlayer:           playerChooses,
 		PlayerStays:            nextPlayersTurn,
 		PlayerTakesCard:        playerTakesCard,
+		PlayerSplitsHand:       playerSplitsHand,
 		DealtARound:            determineHandResults,
 		PlayerGoesBust:         determineIfAllPlayersBusted,
 		AllPlayersGoBust:       dealerWins,
