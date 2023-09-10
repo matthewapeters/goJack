@@ -41,7 +41,7 @@ func startNewHand() {
 
 // dealNewHand
 // Trigger States: NewHand
-// Resulting States: NewHandDealt
+// Resulting States: DealToPlayer
 func dealNewHand() {
 	// Dealer deals 2 cards to each player
 	for i := 0; i < 2; i++ {
@@ -56,11 +56,11 @@ func dealNewHand() {
 			theGame.Dealer.Player.Hand.Takes(theGame.Dealer.Deck.Cards.GiveCard(1).FacingUp())
 		}
 	}
-	theGame.State = NewHandDealt
+	theGame.State = DealToPlayer
 }
 
 // dealToPlayer
-// Trigger States: DealARound, NewHandDealt
+// Trigger States: DealToPlayer
 // Resulting States: PlayerGoesBust, PromptPlayer
 func dealToPlayer() {
 	p := theGame.Players[theGame.CurrentPlayerID]
@@ -106,23 +106,23 @@ func playerChooses() {
 
 // playerTakesCard
 // Trigger States: PlayerTakesCard
-// Resulting States: DealARound
+// Resulting States: DealToPlayer
 func playerTakesCard() {
 	p := theGame.Players[theGame.CurrentPlayerID]
 	p.Hand.Takes(theGame.Dealer.Deck.Cards.GiveCard(1))
-	theGame.State = DealARound
+	theGame.State = DealToPlayer
 }
 
 // playerStays
 // Trigger States: PlayerStays
-// Resulting States: DealARound, DealToDealer
+// Resulting States: DealToPlayer, DealToDealer
 func nextPlayersTurn() {
 	// Player choses to Stay, play goes to next player or the Dealer
 	theGame.CurrentPlayerID += 1
 	if theGame.CurrentPlayerID == len(theGame.Players) {
 		theGame.State = DealToDealer
 	}
-	theGame.State = DealARound
+	theGame.State = DealToPlayer
 }
 
 // dealToDealer
@@ -163,7 +163,7 @@ func dealToDealer() {
 // after dealing a round, some of the players may have busted.
 // Determine if they have all busted (which means the dealer wins and has nothing to prove)
 // Trigger States: PlayerGoesBust
-// Resulting States: DealARound, DealToDealer, AllPlayersGoBust
+// Resulting States: DealToPlayer, DealToDealer, AllPlayersGoBust
 func determineIfAllPlayersBusted() {
 	if theGame.AllPlayersBusted() {
 		theGame.State = AllPlayersGoBust
@@ -173,7 +173,7 @@ func determineIfAllPlayersBusted() {
 			return
 		}
 		// this occurs only for multi-player future variant
-		theGame.State = DealARound
+		theGame.State = DealToPlayer
 	}
 }
 

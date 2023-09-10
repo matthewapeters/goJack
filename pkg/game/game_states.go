@@ -9,8 +9,8 @@ const (
 	NewGame = GameState(iota)
 	Initialized
 	NewHand
-	NewHandDealt
-	DealARound
+	//NewHandDealt
+	DealToPlayer
 	DealtARound
 	DealToDealer
 	PromptPlayer
@@ -28,11 +28,11 @@ const (
 
 var (
 	GameStateMachine = StateMachine{
-		NewGame:                initializeGame,
-		Initialized:            startNewHand,
-		NewHand:                dealNewHand,
-		NewHandDealt:           dealToPlayer,
-		DealARound:             dealToPlayer,
+		NewGame:     initializeGame,
+		Initialized: startNewHand,
+		NewHand:     dealNewHand,
+		//NewHandDealt:           dealToPlayer,
+		DealToPlayer:           dealToPlayer,
 		DealToDealer:           dealToDealer,
 		PromptPlayer:           playerChooses,
 		PlayerStays:            nextPlayersTurn,

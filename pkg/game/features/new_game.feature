@@ -47,3 +47,16 @@ Examples:
 | Players | PlayersCards | DealtCard | ExpectedState  |
 | matt    | 2S,10H       | AH        | PromptPlayer   |
 | matt    | 10H,8S       | 4C        | PlayerGoesBust |
+
+
+# Test nextPalyersTurn logic
+Scenario Outline: Player Stays
+Given a new game of goJack
+And a player list of "<Players>"
+When player "<PlayerIndex>" chooses to Stay
+Then the game state will be "<GameState>"
+And the player index will be "<NewPlayerIndex>"
+
+Examples:
+| Players       | PlayerIndex       | GameState         | NewPlayerIndex |
+| matt,chris    | 0                 | DealToPlayer        | 1              |

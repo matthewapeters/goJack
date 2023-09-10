@@ -192,7 +192,7 @@ func theDealerDealsAToThePlayer(ctx context.Context, cardString string) (err err
 		return
 	}
 	p.Hand.Takes(crd)
-	g.State = DealARound
+	g.State = DealToPlayer
 	return
 }
 
@@ -231,7 +231,7 @@ func thePlayerHasAHandWithTheCards(ctx context.Context, cards string) (err error
 		}
 		p.Hand.Takes(crd)
 	}
-	g.State = DealARound
+	g.State = DealToPlayer
 	return
 }
 

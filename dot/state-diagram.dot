@@ -15,7 +15,6 @@ digraph {
     PlayerTakesCard [shape="parallelogram"]
     PlayerStays [shape="parallelogram"]
     PlayerGoesBust [shape="parallelogram"]
-    NewHandDealt [shape="parallelogram"]
     NewHand [shape="parallelogram"]
     NewGame [shape="parallelogram"]
     Initialized [shape="parallelogram"]
@@ -23,8 +22,8 @@ digraph {
     GameOver [shape="parallelogram"]
     DealtARound [shape="parallelogram"]
     DealerGoesBust [shape="parallelogram"]
+    DealToPlayer [shape="parallelogram"]
     DealToDealer [shape="parallelogram"]
-    DealARound [shape="parallelogram"]
     AllPlayersGoBust [shape="parallelogram"]
 
     playAgain [shape="box"]
@@ -45,13 +44,13 @@ digraph {
     { DealtARound } -> determineHandResults -> { HandIsOver }
     { AllPlayersGoBust } -> dealerWins -> { HandIsOver }
     { DealerGoesBust } -> dealerGoesBust -> { HandIsOver }
-    { PlayerGoesBust } -> determineIfAllPlayersBusted -> { DealARound DealToDealer AllPlayersGoBust }
+    { PlayerGoesBust } -> determineIfAllPlayersBusted -> { DealToPlayer DealToDealer AllPlayersGoBust }
     { DealToDealer } -> dealToDealer -> { DealToDealer DealtARound DealerGoesBust }
-    { PlayerStays } -> nextPlayersTurn -> { DealARound DealToDealer }
-    { PlayerTakesCard } -> playerTakesCard -> { DealARound }
+    { PlayerStays } -> nextPlayersTurn -> { DealToPlayer DealToDealer }
+    { PlayerTakesCard } -> playerTakesCard -> { DealToPlayer }
     { PromptPlayer } -> playerChooses -> { PlayerTakesCard PlayerStays }
-    { DealARound NewHandDealt } -> dealToPlayer -> { PlayerGoesBust PromptPlayer }
-    { NewHand } -> dealNewHand -> { NewHandDealt }
+    { DealToPlayer } -> dealToPlayer -> { PlayerGoesBust PromptPlayer }
+    { NewHand } -> dealNewHand -> { DealToPlayer }
     { Initialized PlayerWantsToPlayAgain } -> startNewHand -> { NewHand }
     { NewGame } -> initializeGame -> { Initialized }
 }
