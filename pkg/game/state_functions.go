@@ -120,7 +120,9 @@ func nextPlayersTurn() {
 	// Player choses to Stay, play goes to next player or the Dealer
 	theGame.CurrentPlayerID += 1
 	if theGame.CurrentPlayerID == len(theGame.Players) {
+		theGame.CurrentPlayerID = 0
 		theGame.State = DealToDealer
+		return
 	}
 	theGame.State = DealToPlayer
 }

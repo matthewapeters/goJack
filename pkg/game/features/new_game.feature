@@ -54,6 +54,7 @@ Scenario Outline: Player Stays
 Given a new game of goJack
 And a player list of "<Players>"
 When player "<PlayerIndex>" chooses to Stay
+And the game considers next steps
 Then the game state will be "<GameState>"
 And the player index will be "<NewPlayerIndex>"
 

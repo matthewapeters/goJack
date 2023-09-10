@@ -57,9 +57,9 @@ func aNewGameOfGoJack() (ctx context.Context, err error) {
 
 func aPlayerListOf(ctxIn context.Context, listOfPlayers string) (ctx context.Context, err error) {
 	ctx = ctxIn
-	players := strings.Split(listOfPlayers, " ")
-	g := ctx.Value("GAME").(*game)
-	g.Names = players
+	players := strings.Split(strings.ReplaceAll(listOfPlayers, " ", ","), ",")
+	theGame = ctx.Value("GAME").(*game)
+	theGame.Names = players
 	initializeGame()
 	return
 }
@@ -204,12 +204,16 @@ func theGameStateWillBe(ctx context.Context, expectedState string) (err error) {
 		expState = PromptPlayer
 	case "PlayerGoesBust":
 		expState = PlayerGoesBust
+	case "DealToPlayer":
+		expState = DealToPlayer
+	case "DealToDealer":
+		expState = DealToDealer
 	default:
 		err = fmt.Errorf("game state %s not handled yet", expectedState)
 		return
 	}
 	if g.State != expState {
-		err = fmt.Errorf("Expected State of %s, but got state %d", expectedState, g.State)
+		err = fmt.Errorf("Expected State of %s, but got state %s", expectedState, g.State)
 	}
 	return
 }
@@ -242,7 +246,44 @@ func thePlayersHandIsCounted(ctx context.Context) (err error) {
 	return
 }
 
+func playerChoosesToStay(ctx context.Context, playerIdx string) (ctxOut context.Context, err error) {
+	idx, err := strconv.Atoi(playerIdx)
+	if err != nil {
+		return
+	}
+	//fmt.Printf("currentPlayerID: %d\n", idx)
+	theGame = ctx.Value("GAME").(*game)
+	theGame.CurrentPlayerID = idx
+	theGame.State = PlayerStays
+	ctxOut = ctx
+	return
+}
+
+func theGameConsidersNextSteps(ctx context.Context) (ctxOut context.Context, err error) {
+	ctxOut = ctx
+	theGame = ctx.Value("GAME").(*game)
+	//f := reflect.ValueOf(GameStateMachine[theGame.State]).Pointer()
+	//fmt.Printf("State: %s\tFunction: %s\n", theGame.State, runtime.FuncForPC(f).Name())
+	GameStateMachine[theGame.State]()
+	//fmt.Printf("GameState: %s\t PlayerID: %d", theGame.State, theGame.CurrentPlayerID)
+	return
+}
+func thePlayerIndexWillBe(ctx context.Context, expectedPlayerIdx string) (err error) {
+	theGame = ctx.Value("GAME").(*game)
+	expectedPlayerID, err := strconv.Atoi(expectedPlayerIdx)
+	if err != nil {
+		return
+	}
+	if expectedPlayerID != theGame.CurrentPlayerID {
+		err = fmt.Errorf("expected player id to be %d but found %d", expectedPlayerID, theGame.CurrentPlayerID)
+	}
+	return
+}
+
 func InitializeScenario(ctx *godog.ScenarioContext) {
+	ctx.Step(`^player "([^"]*)" chooses to Stay$`, playerChoosesToStay)
+	ctx.Step(`^the game considers next steps$`, theGameConsidersNextSteps)
+	ctx.Step(`^the player index will be "([^"]*)"$`, thePlayerIndexWillBe)
 	ctx.Step(`^it is the player\'s turn$`, itIsThePlayersTurn)
 	ctx.Step(`^the dealer deals a "([^"]*)" to the player$`, theDealerDealsAToThePlayer)
 	ctx.Step(`^the game state will be "([^"]*)"$`, theGameStateWillBe)
