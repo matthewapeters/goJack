@@ -59,4 +59,5 @@ And the player index will be "<NewPlayerIndex>"
 
 Examples:
 | Players       | PlayerIndex       | GameState         | NewPlayerIndex |
-| matt,chris    | 0                 | DealToPlayer        | 1              |
+| matt,chris    | 0                 | DealToPlayer      | 1              |
+| matt,chris    | 1                 | DealToDealer      | 0              |
